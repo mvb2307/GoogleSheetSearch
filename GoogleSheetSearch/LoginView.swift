@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftSoup
-import os.log 
+import os.log
 
 #if DEBUG
 extension OSLog {
@@ -58,22 +58,43 @@ struct LoginView: View {
         VStack {
             if showModal {
                 VStack(spacing: AppStyle.padding) {
+                    Image(systemName: "person.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(AppStyle.accentColor)
+                        .padding(.bottom, 8)
+                    
                     Text("Login")
                         .font(AppStyle.fontTitle)
                         .foregroundColor(.primary)
 
-                    CustomTextField(placeholder: "Username", text: $username)
-                    CustomTextField(placeholder: "Password", text: $password, isSecure: true)
+                    CustomTextField(
+                        placeholder: "Username",
+                        text: $username,
+                        icon: "person.fill"
+                    )
+                    
+                    CustomTextField(
+                        placeholder: "Password",
+                        text: $password,
+                        icon: "lock.fill",
+                        isSecure: true
+                    )
 
-                    Toggle("Keep me logged in", isOn: $keepLoggedIn)
+                    Toggle(isOn: $keepLoggedIn) {
+                        HStack {
+                            Image(systemName: "checkmark.shield.fill")
+                                .foregroundColor(AppStyle.secondaryTextColor)
+                            Text("Keep me logged in")
+                        }
                         .font(AppStyle.fontSmall)
                         .foregroundColor(AppStyle.secondaryTextColor)
-                        .padding(.horizontal, 4)
-                        .onChange(of: keepLoggedIn) { newValue in
-                            if !newValue {
-                                clearStoredCredentials()
-                            }
+                    }
+                    .padding(.horizontal, 4)
+                    .onChange(of: keepLoggedIn) { newValue in
+                        if !newValue {
+                            clearStoredCredentials()
                         }
+                    }
 
                     Button(action: {
                         Task {
@@ -83,21 +104,25 @@ struct LoginView: View {
                         }
                     }) {
                         ZStack {
-                            Text("Login")
-                                .font(AppStyle.fontHeading)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: AppStyle.iconWidth)
-                                .background(
-                                    RoundedRectangle(cornerRadius: AppStyle.cornerRadius)
-                                        .fill(AppStyle.accentColor)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: AppStyle.cornerRadius)
-                                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                                        )
-                                        .shadow(color: AppStyle.accentColor.opacity(0.3), radius: 5, x: 0, y: 2)
-                                )
-                                .foregroundColor(.white)
-                                .opacity(isLoading ? 0 : 1)
+                            HStack {
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .font(.system(size: 20))
+                                Text("Login")
+                            }
+                            .font(AppStyle.fontHeading)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: AppStyle.iconWidth)
+                            .background(
+                                RoundedRectangle(cornerRadius: AppStyle.cornerRadius)
+                                    .fill(AppStyle.accentColor)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: AppStyle.cornerRadius)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                                    .shadow(color: AppStyle.accentColor.opacity(0.3), radius: 5, x: 0, y: 2)
+                            )
+                            .foregroundColor(.white)
+                            .opacity(isLoading ? 0 : 1)
                             
                             if isLoading {
                                 ProgressView()
@@ -225,28 +250,44 @@ struct LoginView: View {
         }
     }
     
-    private func clearStoredCredentials() {
-        UserDefaults.standard.removeObject(forKey: "savedUsername")
-        UserDefaults.standard.removeObject(forKey: "savedPassword")
-        UserDefaults.standard.removeObject(forKey: "keepLoggedIn")
-        UserDefaults.standard.synchronize()
-    }
-    
     private func storeCredentials() {
         if keepLoggedIn {
             UserDefaults.standard.set(username, forKey: "savedUsername")
             UserDefaults.standard.set(password, forKey: "savedPassword")
             UserDefaults.standard.set(true, forKey: "keepLoggedIn")
+            // Store the current boot timestamp
+            let bootTime = Date().timeIntervalSince1970
+            UserDefaults.standard.set(bootTime, forKey: "lastLoginTime")
         } else {
             clearStoredCredentials()
         }
         UserDefaults.standard.synchronize()
     }
-    
+
+    private func clearStoredCredentials() {
+        UserDefaults.standard.removeObject(forKey: "savedUsername")
+        UserDefaults.standard.removeObject(forKey: "savedPassword")
+        UserDefaults.standard.removeObject(forKey: "keepLoggedIn")
+        UserDefaults.standard.removeObject(forKey: "lastLoginTime")
+        UserDefaults.standard.synchronize()
+    }
+
     private func checkStoredCredentials() {
         if UserDefaults.standard.bool(forKey: "keepLoggedIn"),
            let savedUsername = UserDefaults.standard.string(forKey: "savedUsername"),
-           let savedPassword = UserDefaults.standard.string(forKey: "savedPassword") {
+           let savedPassword = UserDefaults.standard.string(forKey: "savedPassword"),
+           let lastLoginTime = UserDefaults.standard.object(forKey: "lastLoginTime") as? Double {
+            
+            // Get the system boot time
+            let processInfo = ProcessInfo.processInfo
+            let bootTime = Date().timeIntervalSince1970 - processInfo.systemUptime
+            
+            // If the last login was before the current boot time, clear credentials
+            if lastLoginTime < bootTime {
+                clearStoredCredentials()
+                return
+            }
+            
             username = savedUsername
             password = savedPassword
             keepLoggedIn = true
@@ -295,14 +336,23 @@ struct NotificationBanner: View {
 struct CustomTextField: View {
     let placeholder: String
     @Binding var text: String
+    var icon: String = ""
     var isSecure: Bool = false
 
     var body: some View {
-        Group {
-            if isSecure {
-                SecureField(placeholder, text: $text)
-            } else {
-                TextField(placeholder, text: $text)
+        HStack(spacing: 12) {
+            if !icon.isEmpty {
+                Image(systemName: icon)
+                    .foregroundColor(AppStyle.secondaryTextColor)
+                    .frame(width: 20)
+            }
+            
+            Group {
+                if isSecure {
+                    SecureField(placeholder, text: $text)
+                } else {
+                    TextField(placeholder, text: $text)
+                }
             }
         }
         .textFieldStyle(PlainTextFieldStyle())
