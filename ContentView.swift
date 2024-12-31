@@ -1386,9 +1386,9 @@ struct SettingsView: View {
                         title: "About",
                         content: {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("File Search v1.0.0")
+                                Text("File Search v1.0")
                                     .bold()
-                                Text("2024")
+                                Text("© 2024 MVB PICTURES")
                                     .font(.system(size: 12))
                                     .foregroundStyle(.secondary)
                             }

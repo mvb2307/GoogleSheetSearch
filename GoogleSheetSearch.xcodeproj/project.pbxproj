@@ -14,6 +14,10 @@
 		4B138DE62CFF9EF6008286D5 /* GoogleSheetSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B138DE52CFF9EF6008286D5 /* GoogleSheetSearchTests.swift */; };
 		4B138DF02CFF9EF6008286D5 /* GoogleSheetSearchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B138DEF2CFF9EF6008286D5 /* GoogleSheetSearchUITests.swift */; };
 		4B138DF22CFF9EF6008286D5 /* GoogleSheetSearchUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B138DF12CFF9EF6008286D5 /* GoogleSheetSearchUITestsLaunchTests.swift */; };
+		4B138E002CFF9FDE008286D5 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 4B138DFF2CFF9FDE008286D5 /* SwiftSoup */; };
+		4B138E022CFF9FFC008286D5 /* GoogleSheetsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B138E012CFF9FFC008286D5 /* GoogleSheetsParser.swift */; };
+		4B6B72A12D24506A00C2A470 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6B72A02D24506A00C2A470 /* LoginView.swift */; };
+		4B6B72A32D245DE000C2A470 /* LoginModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6B72A22D245DE000C2A470 /* LoginModalView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +49,9 @@
 		4B138DEB2CFF9EF6008286D5 /* GoogleSheetSearchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GoogleSheetSearchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B138DEF2CFF9EF6008286D5 /* GoogleSheetSearchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetSearchUITests.swift; sourceTree = "<group>"; };
 		4B138DF12CFF9EF6008286D5 /* GoogleSheetSearchUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetSearchUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		4B138E012CFF9FFC008286D5 /* GoogleSheetsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetsParser.swift; sourceTree = "<group>"; };
+		4B6B72A02D24506A00C2A470 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		4B6B72A22D245DE000C2A470 /* LoginModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModalView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B138E002CFF9FDE008286D5 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,7 +103,10 @@
 		4B138DD22CFF9EF5008286D5 /* GoogleSheetSearch */ = {
 			isa = PBXGroup;
 			children = (
+				4B6B72A02D24506A00C2A470 /* LoginView.swift */,
+				4B6B72A22D245DE000C2A470 /* LoginModalView.swift */,
 				4B138DD32CFF9EF5008286D5 /* GoogleSheetSearchApp.swift */,
+				4B138E012CFF9FFC008286D5 /* GoogleSheetsParser.swift */,
 				4B138DD52CFF9EF5008286D5 /* ContentView.swift */,
 				4B138DD72CFF9EF6008286D5 /* Assets.xcassets */,
 				4B138DDC2CFF9EF6008286D5 /* GoogleSheetSearch.entitlements */,
@@ -145,6 +156,9 @@
 			dependencies = (
 			);
 			name = GoogleSheetSearch;
+			packageProductDependencies = (
+				4B138DFF2CFF9FDE008286D5 /* SwiftSoup */,
+			);
 			productName = GoogleSheetSearch;
 			productReference = 4B138DD02CFF9EF5008286D5 /* GoogleSheetSearch.app */;
 			productType = "com.apple.product-type.application";
@@ -217,6 +231,9 @@
 				Base,
 			);
 			mainGroup = 4B138DC72CFF9EF5008286D5;
+			packageReferences = (
+				4B138DFE2CFF9FDE008286D5 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+			);
 			productRefGroup = 4B138DD12CFF9EF5008286D5 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -260,7 +277,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4B138DD62CFF9EF5008286D5 /* ContentView.swift in Sources */,
+				4B6B72A32D245DE000C2A470 /* LoginModalView.swift in Sources */,
 				4B138DD42CFF9EF5008286D5 /* GoogleSheetSearchApp.swift in Sources */,
+				4B138E022CFF9FFC008286D5 /* GoogleSheetsParser.swift in Sources */,
+				4B6B72A12D24506A00C2A470 /* LoginView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -416,6 +436,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = GoogleSheetSearch/GoogleSheetSearch.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -424,14 +445,17 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.DMVB.GoogleSheetSearch.GoogleSheetSearch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -443,6 +467,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = GoogleSheetSearch/GoogleSheetSearch.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -451,14 +476,17 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.DMVB.GoogleSheetSearch.GoogleSheetSearch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -576,6 +604,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4B138DFE2CFF9FDE008286D5 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4B138DFF2CFF9FDE008286D5 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4B138DFE2CFF9FDE008286D5 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4B138DC82CFF9EF5008286D5 /* Project object */;
 }
