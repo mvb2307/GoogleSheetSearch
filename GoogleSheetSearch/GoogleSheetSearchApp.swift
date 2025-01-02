@@ -10,17 +10,15 @@ import SwiftUI
 @main
 struct GoogleSheetSearchApp: App {
     @StateObject private var parser = GoogleSheetsParser()
-    @State private var isAuthenticated = false // Track the authentication state
+    @State private var isAuthenticated = false
     
     var body: some Scene {
         WindowGroup {
             VStack {
                 if isAuthenticated {
-                    // Show ContentView only after login is successful
                     ContentView(parser: parser)
                         .frame(minWidth: 800, minHeight: 500)
                         .onAppear {
-                            // Load last used URL if available
                             if let savedURL = UserDefaults.standard.string(forKey: "LastUsedSheetURL") {
                                 Task {
                                     await parser.updateURL(savedURL)
@@ -28,13 +26,9 @@ struct GoogleSheetSearchApp: App {
                             }
                         }
                 } else {
-                    // Show the login view if the user is not authenticated
-                    LoginView(isAuthenticated: $isAuthenticated, parser: parser) // Correct argument order
-                        .frame(minWidth: 800, minHeight: 500)
+                    LoginView(isAuthenticated: $isAuthenticated, parser: parser)
+                        .frame(minWidth: 400, minHeight: 500)
                 }
-            }
-            .onAppear {
-                // Perform any setup when the app appears
             }
         }
     }

@@ -18,6 +18,7 @@
 		4B138E022CFF9FFC008286D5 /* GoogleSheetsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B138E012CFF9FFC008286D5 /* GoogleSheetsParser.swift */; };
 		4B6B72A12D24506A00C2A470 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6B72A02D24506A00C2A470 /* LoginView.swift */; };
 		4B6B72A32D245DE000C2A470 /* LoginModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6B72A22D245DE000C2A470 /* LoginModalView.swift */; };
+		4B6B72A52D249BE200C2A470 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6B72A42D249BE200C2A470 /* Notifications.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +53,7 @@
 		4B138E012CFF9FFC008286D5 /* GoogleSheetsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetsParser.swift; sourceTree = "<group>"; };
 		4B6B72A02D24506A00C2A470 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		4B6B72A22D245DE000C2A470 /* LoginModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModalView.swift; sourceTree = "<group>"; };
+		4B6B72A42D249BE200C2A470 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +110,7 @@
 				4B138DD32CFF9EF5008286D5 /* GoogleSheetSearchApp.swift */,
 				4B138E012CFF9FFC008286D5 /* GoogleSheetsParser.swift */,
 				4B138DD52CFF9EF5008286D5 /* ContentView.swift */,
+				4B6B72A42D249BE200C2A470 /* Notifications.swift */,
 				4B138DD72CFF9EF6008286D5 /* Assets.xcassets */,
 				4B138DDC2CFF9EF6008286D5 /* GoogleSheetSearch.entitlements */,
 				4B138DD92CFF9EF6008286D5 /* Preview Content */,
@@ -276,6 +279,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B6B72A52D249BE200C2A470 /* Notifications.swift in Sources */,
 				4B138DD62CFF9EF5008286D5 /* ContentView.swift in Sources */,
 				4B6B72A32D245DE000C2A470 /* LoginModalView.swift in Sources */,
 				4B138DD42CFF9EF5008286D5 /* GoogleSheetSearchApp.swift in Sources */,

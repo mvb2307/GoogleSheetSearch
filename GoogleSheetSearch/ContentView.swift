@@ -28,6 +28,8 @@ struct AppStyle {
 
 struct ContentView: View {
     @ObservedObject var parser: GoogleSheetsParser
+    @StateObject private var notificationManager = NotificationManager()
+    @State private var previousSheets: [SheetData] = []
     @State private var searchText = ""
     @State private var selectedSheet: String?
     @State private var urlInput = ""
@@ -37,14 +39,10 @@ struct ContentView: View {
     @State private var showingDocumentation = false
     @State private var showingSettings = false
     @AppStorage("showFileCount") private var showFileCount = true
-    
-    // Replace these lines at the top of ContentView
     @AppStorage("customSheetNames") private var customSheetNames: [String: String] = [:]
     @AppStorage("sheetOrder") private var sheetOrder: [String] = []
     @State private var showingRenameSheet = false
     @State private var sheetToRename: String? = nil
-    
-    // Add a new property to store the original order
     @AppStorage("originalSheetOrder") private var originalSheetOrder: [String] = []
     
     // Update the orderedSheets computed property
@@ -136,6 +134,100 @@ struct ContentView: View {
     // Add this helper function inside ContentView
     private func displayName(for sheetName: String) -> String {
         customSheetNames[sheetName] ?? sheetName
+    }
+    private func checkForUpdates(currentSheets: [SheetData]) {
+        let currentFiles = Dictionary(grouping: currentSheets.flatMap { sheet in
+            sheet.files.map { (sheet.sheetName, $0) }
+        }, by: { $0.1.folderName })
+        
+        let previousFiles = Dictionary(grouping: previousSheets.flatMap { sheet in
+            sheet.files.map { (sheet.sheetName, $0) }
+        }, by: { $0.1.folderName })
+        
+        var updates: [FileUpdate] = []
+        let now = Date()
+        
+        // Check for new and modified files
+        for (folderName, current) in currentFiles {
+            let currentFile = current.first!
+            
+            if let previous = previousFiles[folderName]?.first {
+                // File existed before, check for actual changes
+                var changes: [String] = []
+                
+                // Compare size (dateCreated field)
+                if currentFile.1.dateCreated != previous.1.dateCreated {
+                    changes.append("Size changed: \(previous.1.dateCreated ?? "Unknown") → \(currentFile.1.dateCreated ?? "Unknown")")
+                }
+                
+                // Compare date (name field)
+                if currentFile.1.name != previous.1.name {
+                    changes.append("Date changed: \(previous.1.name) → \(currentFile.1.name)")
+                }
+                
+                // Compare location/description (size field)
+                if currentFile.1.size != previous.1.size {
+                    changes.append("Location changed: \(previous.1.size ?? "Unknown") → \(currentFile.1.size ?? "Unknown")")
+                }
+                
+                // Only add if there are actual changes
+                if !changes.isEmpty {
+                    updates.append(FileUpdate(
+                        fileName: currentFile.1.folderName,
+                        sheetName: currentFile.0,
+                        changeType: .modified,
+                        timestamp: now,
+                        details: changes.joined(separator: "\n")
+                    ))
+                }
+            } else {
+                // New file added
+                updates.append(FileUpdate(
+                    fileName: currentFile.1.folderName,
+                    sheetName: currentFile.0,
+                    changeType: .added,
+                    timestamp: now,
+                    details: """
+                        Size: \(currentFile.1.dateCreated ?? "Unknown")
+                        Date: \(currentFile.1.name)
+                        Location: \(currentFile.1.size ?? "Unknown")
+                        """
+                ))
+            }
+        }
+        
+        // Check for removed files
+        for (folderName, previous) in previousFiles {
+            if currentFiles[folderName] == nil {
+                let previousFile = previous.first!
+                updates.append(FileUpdate(
+                    fileName: previousFile.1.folderName,
+                    sheetName: previousFile.0,
+                    changeType: .removed,
+                    timestamp: now,
+                    details: """
+                        Last known size: \(previousFile.1.dateCreated ?? "Unknown")
+                        Last known date: \(previousFile.1.name)
+                        Last known location: \(previousFile.1.size ?? "Unknown")
+                        """
+                ))
+            }
+        }
+        
+        // Sort updates by timestamp (newest first)
+        let sortedUpdates = updates.sorted { $0.timestamp > $1.timestamp }
+        
+        // Clear existing notifications
+        notificationManager.dismissAllUpdates()
+        
+        // Take the first 10 items (newest changes)
+        let lastTenUpdates = Array(sortedUpdates.prefix(10))
+        lastTenUpdates.forEach { update in
+            self.notificationManager.addUpdate(update)
+        }
+        
+        // Update previous state
+        previousSheets = currentSheets
     }
     
     var body: some View {
@@ -317,15 +409,19 @@ struct ContentView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: {
-                    showingSettings = true
-                }) {
-                    Image(systemName: "gear")
-                        .font(.system(size: 14))
-                        .foregroundStyle(.secondary)
-                        .symbolRenderingMode(.hierarchical)
+                HStack(spacing: 12) {
+                    NotificationButton(manager: notificationManager)
+                    
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "gear")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                            .symbolRenderingMode(.hierarchical)
+                    }
+                    .help("Settings")
                 }
-                .help("Settings")
             }
         }
         .sheet(isPresented: $showingDocumentation) {
@@ -358,6 +454,7 @@ struct ContentView: View {
             withAnimation {
                 updateSheetOrder()
                 updateCounter += 1
+                checkForUpdates(currentSheets: parser.sheets)
             }
         }
     }
@@ -1401,10 +1498,7 @@ struct SettingsView: View {
         .frame(width: 500, height: 400)
         .background(Color(.windowBackgroundColor))
         .onAppear {
-            updateStats()
-            if let currentURL = parser.currentURL {
-                newURL = currentURL
-            }
+    
         }
     }
 }
@@ -1583,3 +1677,4 @@ struct StorageStatRow: View {
         .font(.system(size: 13))
     }
 }
+
