@@ -70,12 +70,8 @@ class GoogleSheetsParser: ObservableObject {
         config.urlCache = nil
         return URLSession(configuration: config)
     }()
-    @AppStorage("autoRefreshInterval") private var autoRefreshInterval = 300.0
     
-    init() {
-        self.currentURL = "https://docs.google.com/spreadsheets/u/1/d/e/2PACX-1vTAyLw8I4Jwuqmq_n4fYdM5JdZba260kNdtHIEKXE6vLf3WF3u2mISZG-Y1ckMRejY79N7KRpO3wezI/pubhtml"
-        setupRefreshTimer()
-    }
+    @AppStorage("autoRefreshInterval") private var autoRefreshInterval = 300.0
     
     deinit {
         refreshTimer?.invalidate()
@@ -98,7 +94,6 @@ class GoogleSheetsParser: ObservableObject {
         }
     }
     
-    // Add observer for settings changes
     func startObservingSettings() {
         NotificationCenter.default.addObserver(self,
             selector: #selector(handleSettingsChange),
@@ -120,7 +115,7 @@ class GoogleSheetsParser: ObservableObject {
         guard let url = currentURL, !url.isEmpty,
               let requestURL = URL(string: url) else {
             await MainActor.run {
-                error = NSError(domain: "", code: -1, 
+                error = NSError(domain: "", code: -1,
                     userInfo: [NSLocalizedDescriptionKey: "Invalid or empty URL"])
                 loadingMessage = ""
                 isLoading = false
@@ -205,7 +200,7 @@ class GoogleSheetsParser: ObservableObject {
         
         // Try to find last modified info
         let metaTags = try doc.select("meta[property=og:updated_time], meta[name=revised], meta[name=last-modified]")
-        let lastModified = try metaTags.first?.attr("content")
+        let lastModified = try metaTags.first()?.attr("content")
         
         let lastModifiedDate = lastModified.flatMap { dateString in
             let formatter = ISO8601DateFormatter()
@@ -317,7 +312,6 @@ class GoogleSheetsParser: ObservableObject {
         }
     }
     
-    // Add this helper function
     func formatSize(_ sizeInGB: Double?) -> (Double, String) {
         guard let size = sizeInGB else { return (0, "GB") }
         if size >= 1000 {
@@ -325,9 +319,85 @@ class GoogleSheetsParser: ObservableObject {
         }
         return (size, "GB")
     }
+    
+    // Add these properties after the existing properties
+    @Published private(set) var userAccountsURL: String?
+    @Published var userAccountsSheets: [SheetData] = []
+
+    // Add these methods at the bottom of the class, before the closing brace
+    func updateUserAccountsURL(_ url: String) async {
+        await MainActor.run {
+            userAccountsURL = url.isEmpty ? nil : url
+            UserDefaults.standard.set(url, forKey: "UserAccountsSheetURL")
+            
+            if !url.isEmpty {
+                Task {
+                    await fetchUserAccountsData(forceRefresh: true)
+                }
+            } else {
+                userAccountsSheets = []
+            }
+        }
+    }
+
+    func fetchUserAccountsData(forceRefresh: Bool = false) async {
+        guard !isLoading else { return }
+        guard let url = userAccountsURL, !url.isEmpty,
+              let requestURL = URL(string: url) else {
+            return
+        }
+        
+        isLoading = true
+        loadingMessage = "Fetching user accounts data..."
+        
+        do {
+            var request = URLRequest(url: requestURL)
+            request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+            
+            if forceRefresh {
+                let timestamp = Date().timeIntervalSince1970
+                let random = Int.random(in: 0...10000)
+                let urlWithParams = url + "?t=\(timestamp)&r=\(random)"
+                request = URLRequest(url: URL(string: urlWithParams)!)
+            }
+            
+            let (data, response) = try await session.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                guard httpResponse.statusCode == 200 else {
+                    throw NSError(domain: "", code: httpResponse.statusCode,
+                        userInfo: [NSLocalizedDescriptionKey: "Server returned status code \(httpResponse.statusCode)"])
+                }
+            }
+            
+            loadingMessage = "Processing user accounts data..."
+            let newSheets = try await parseHTMLData(data)
+            
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.userAccountsSheets = newSheets
+                    self.loadingMessage = ""
+                    self.isLoading = false
+                }
+            }
+            
+        } catch {
+            await MainActor.run {
+                self.error = error
+                self.loadingMessage = ""
+                self.isLoading = false
+            }
+        }
+    }
+
+    // Modify the init() method to include userAccountsURL initialization
+    init() {
+        self.currentURL = "https://docs.google.com/spreadsheets/u/1/d/e/2PACX-1vTAyLw8I4Jwuqmq_n4fYdM5JdZba260kNdtHIEKXE6vLf3WF3u2mISZG-Y1ckMRejY79N7KRpO3wezI/pubhtml"
+        self.userAccountsURL = UserDefaults.standard.string(forKey: "UserAccountsSheetURL") ?? "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuRqeXwVMciCj6h3V7-CVECceDk_N5l01NM2vDrjd1tvu2MUY7f6G93jfTiUqXt1cxhyofS01Ca-iN/pubhtml"
+        setupRefreshTimer()
+    }
 }
 
-// Add notification name
 extension Notification.Name {
     static let sheetsDidUpdate = Notification.Name("sheetsDidUpdate")
 }
