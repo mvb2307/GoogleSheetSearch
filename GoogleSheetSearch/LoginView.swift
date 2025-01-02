@@ -30,15 +30,18 @@ struct LoginView: View {
     @State private var signupFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeayodN1FEeQhDSF78T12ILsfO5O-W85Ex0mF9Mapl9erPQ0g/viewform?usp=sf_link"
     @State private var showingForgotPasswordAlert = false
     @Binding var isAuthenticated: Bool
+    @ObservedObject var parser: GoogleSheetsParser
     @Environment(\.scenePhase) var scenePhase
-    
-    let parser: GoogleSheetsParser
     @State private var users: [(username: String, password: String)] = []
     
     var body: some View {
         VStack {
             if isAuthenticated {
-                ContentView(parser: parser)
+                VStack(spacing: 0) {
+                    ContentView(parser: parser, isAuthenticated: $isAuthenticated)
+                        .transition(.opacity.combined(with: .move(edge: .trailing)))
+                        .frame(maxHeight: .infinity)
+                }
             } else {
                 loginModal
             }
@@ -169,6 +172,7 @@ struct LoginView: View {
                 .background(AppStyle.controlBackgroundColor)
                 .cornerRadius(AppStyle.cornerRadius)
                 .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                .padding(.vertical, 50)
                 .overlay(
                     ZStack {
                         if showNotification {
@@ -275,18 +279,20 @@ struct LoginView: View {
     }
     
     private func dismissNotificationAndProceed() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            withAnimation {
+        // Reduced delay to 0.2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 showNotification = false
                 if keepLoggedIn {
                     storeCredentials()
                 }
                 isAuthenticated = true
                 showModal = false
-                
-                Task {
-                    await parser.fetchData(forceRefresh: true)
-                }
+            }
+            
+            // Move data fetching outside of animation
+            Task {
+                await parser.fetchData(forceRefresh: true)
             }
         }
     }
@@ -438,5 +444,36 @@ extension Bundle {
         let version = self.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = self.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
+    }
+}
+// Add this at the bottom of LoginView.swift, after all existing code
+struct LogoutButton: View {
+    @Binding var isAuthenticated: Bool
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Divider()
+            Button(action: {
+                withAnimation(.spring(response: 0.3)) {
+                    isAuthenticated = false
+                }
+            }) {
+                HStack {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.system(size: 16))
+                        .symbolRenderingMode(.hierarchical)
+                    Text("Logout")
+                        .font(.system(size: 14))
+                    Spacer()
+                }
+                .foregroundStyle(.red)
+                .padding(.vertical, 5)
+                .padding(.horizontal, 12)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .padding(.vertical, 4)
+            .background(Color(.controlBackgroundColor))
+        }
     }
 }

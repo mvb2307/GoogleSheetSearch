@@ -28,6 +28,8 @@ struct AppStyle {
 
 struct ContentView: View {
     @ObservedObject var parser: GoogleSheetsParser
+    @Binding var isAuthenticated: Bool
+    @State private var isUpdatingList = false
     @StateObject private var notificationManager = NotificationManager()
     @State private var previousSheets: [SheetData] = []
     @State private var searchText = ""
@@ -82,10 +84,9 @@ struct ContentView: View {
         if searchText.isEmpty {
             if showAllSheets {
                 return parser.sheets.map { ($0.sheetName, $0.files) }
-            } else if let selectedSheet = selectedSheet {
-                return parser.sheets
-                    .filter { $0.sheetName == selectedSheet }
-                    .map { ($0.sheetName, $0.files) }
+            } else if let selectedSheet = selectedSheet,
+                      let selectedData = parser.sheets.first(where: { $0.sheetName == selectedSheet }) {
+                return [(selectedData.sheetName, selectedData.files)]
             }
             return []
         } else {
@@ -407,10 +408,12 @@ struct ContentView: View {
             }
             .background(Color(.windowBackgroundColor))
         }
+        // Find the .toolbar section and replace it with this:
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                HStack(spacing: 12) {
+                HStack(spacing: 16) {
                     NotificationButton(manager: notificationManager)
+                        .frame(width: 20)
                     
                     Button(action: {
                         showingSettings = true
@@ -421,7 +424,25 @@ struct ContentView: View {
                             .symbolRenderingMode(.hierarchical)
                     }
                     .help("Settings")
+                    .frame(width: 20)
+                    
+                    Divider()
+                        .frame(height: 16)
+                    
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3)) {
+                            isAuthenticated = false
+                        }
+                    }) {
+                        Image(systemName: "xmark.square")
+                            .font(.system(size: 20))
+                            .foregroundStyle(AppStyle.accentColor)  // Changed from .red to AppStyle.accentColor
+                            .symbolRenderingMode(.hierarchical)
+                    }
+                    .help("Logout")
+                    .frame(width: 20)
                 }
+                .padding(.horizontal, 8)
             }
         }
         .sheet(isPresented: $showingDocumentation) {
@@ -712,58 +733,50 @@ struct SearchResultsView: View {
             .padding()
             
             Table(sortedFiles, selection: .constant(nil), sortOrder: $sortOrder) {
-                TableColumn("Sheet") { file in
-                    if let sheetName = results.first(where: { $0.1.contains { $0.id == file.id } })?.0 {
-                        Text(displayName(for: sheetName))
-                            .font(.system(size: 13))
+                            TableColumn("File Name", value: \.folderName) { file in
+                                Text(file.folderName)
+                                    .font(.system(size: 13))
+                            }
+                            .width(min: 250)
+                            
+                            TableColumn("Date Created", value: \.name) { file in
+                                Text(file.name)
+                                    .font(.system(size: 13))
+                            }
+                            .width(min: 100)
+                            
+                            TableColumn("Size", value: \.dateCreated.orEmpty) { file in
+                                if let sizeStr = file.dateCreated?.replacingOccurrences(of: " GB", with: ""),
+                                   let size = Double(sizeStr) {
+                                    let formatted = parser.formatSize(size)
+                                    Text("\(String(format: "%.2f", formatted.0)) \(formatted.1)")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(1)
+                                } else {
+                                    Text("-")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(1)
+                                }
+                            }
+                            .width(min: 100)
+                            
+                            TableColumn("Description/ Location", value: \.size.orEmpty) { file in
+                                Text(file.size ?? "-")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                            }
+                            .width(min: 200)
+                        }
+                        .background(Color(.controlBackgroundColor))
+                        .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
                     }
+                    .padding()
+                    .background(Color(.windowBackgroundColor))
                 }
-                .width(min: 150)
-                
-                TableColumn("File Name", value: \.folderName) { file in
-                    Text(file.folderName)
-                        .font(.system(size: 13))
-                }
-                .width(min: 250)
-                
-                TableColumn("Date Created", value: \.name) { file in
-                    Text(file.name)
-                        .font(.system(size: 13))
-                }
-                .width(min: 100)
-                
-                TableColumn("Size", value: \.dateCreated.orEmpty) { file in
-                    if let sizeStr = file.dateCreated?.replacingOccurrences(of: " GB", with: ""),
-                       let size = Double(sizeStr) {
-                        let formatted = parser.formatSize(size)
-                        Text("\(String(format: "%.2f", formatted.0)) \(formatted.1)")
-                            .font(.system(size: 13))
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    } else {
-                        Text("-")
-                            .font(.system(size: 13))
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-                .width(min: 100)
-                
-                TableColumn("Description/ Location", value: \.size.orEmpty) { file in
-                    Text(file.size ?? "-")
-                        .font(.system(size: 13))
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                }
-                .width(min: 200)
             }
-            .background(Color(.controlBackgroundColor))
-            .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
-        }
-        .padding()
-        .background(Color(.windowBackgroundColor))
-    }
-}
 
 // New AllSheetsView
 struct AllSheetsView: View {
@@ -1746,4 +1759,37 @@ struct StorageStatRow: View {
         .font(.system(size: 13))
     }
 }
+// Add this at the very bottom of the file, after all existing code
 
+extension ContentView {
+    struct LogoutButton: View {
+        @Binding var isAuthenticated: Bool
+        
+        var body: some View {
+            VStack(spacing: 0) {
+                Divider()
+                Button(action: {
+                    withAnimation(.spring(response: 0.3)) {
+                        isAuthenticated = false
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .font(.system(size: 16))
+                            .symbolRenderingMode(.hierarchical)
+                        Text("Logout")
+                            .font(.system(size: 14))
+                        Spacer()
+                    }
+                    .foregroundStyle(.red)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 12)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 4)
+                .background(Color(.controlBackgroundColor))
+            }
+        }
+    }
+}
