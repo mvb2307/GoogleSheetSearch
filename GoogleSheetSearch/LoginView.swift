@@ -28,6 +28,7 @@ struct LoginView: View {
     @State private var isLoading = false
     @State private var isShowingSignup = false
     @State private var signupFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeayodN1FEeQhDSF78T12ILsfO5O-W85Ex0mF9Mapl9erPQ0g/viewform?usp=sf_link"
+    @State private var showingForgotPasswordAlert = false
     @Binding var isAuthenticated: Bool
     @Environment(\.scenePhase) var scenePhase
     
@@ -137,10 +138,18 @@ struct LoginView: View {
                     .disabled(isLoading)
                     .padding(.top, 8)
                     
-                    Divider()
-                        .padding(.vertical)
+                    Button("Forgot Password?") {
+                        showingForgotPasswordAlert = true
+                    }
+                    .buttonStyle(.plain)
+                    .font(AppStyle.fontSmall)
+                    .foregroundColor(AppStyle.secondaryTextColor)
+                    .padding(.top, 4)
                     
-                    VStack(spacing: 8) {
+                    Divider()
+                        .padding(.vertical, 4)
+                    
+                    VStack(spacing: 4) {
                         Text("Don't have an account?")
                             .font(AppStyle.fontSmall)
                             .foregroundColor(AppStyle.secondaryTextColor)
@@ -183,16 +192,20 @@ struct LoginView: View {
                         }
                     }
                 )
+                .alert("Forgot Password", isPresented: $showingForgotPasswordAlert) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text("Please contact your administrator for a new password by sending them an email. (martijn.vanbeek@by433.com)")
+                }
                 .sheet(isPresented: $isShowingSignup) {
-                    SignupFormView(formUrl: signupFormUrl)
+                    SignupFormView()
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.opacity(0.3))
     }
-    
-    // Helper methods for LoginView
+    // Helper methods
     private func fetchUsernames() async {
         guard let url = URL(string: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuRqeXwVMciCj6h3V7-CVECceDk_N5l01NM2vDrjd1tvu2MUY7f6G93jfTiUqXt1cxhyofS01Ca-iN/pubhtml") else {
             print("Invalid URL")
@@ -214,6 +227,7 @@ struct LoginView: View {
             print("Error fetching user data: \(error.localizedDescription)")
         }
     }
+
     private func login() async {
         if username.isEmpty || password.isEmpty {
             errorMessage = "Please enter both username and password"
@@ -308,141 +322,49 @@ struct LoginView: View {
     }
 }
 
-struct SignupFormView: View {
-    @Environment(\.dismiss) private var dismiss
-    let formUrl: String
-    
-    @State private var showingConfirmation = false
-    @State private var isLoading = true
+// Add Color extension for hex conversion
+extension Color {
+    func toHexString() -> String {
+        let components = NSColor(self).cgColor.components!
+        let r = Float(components[0])
+        let g = Float(components[1])
+        let b = Float(components[2])
+        return String(format: "#%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255))
+    }
+}
+struct CustomTextField: View {
+    let placeholder: String
+    @Binding var text: String
+    var icon: String = ""
+    var isSecure: Bool = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16))
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-                .help("Cancel")
-                
-                Spacer()
-                
-                Text("Create Account")
-                    .font(AppStyle.fontHeading)
-                
-                Spacer()
+        HStack(spacing: 12) {
+            if !icon.isEmpty {
+                Image(systemName: icon)
+                    .foregroundColor(AppStyle.secondaryTextColor)
+                    .frame(width: 20)
             }
-            .padding()
-            .background(AppStyle.controlBackgroundColor)
             
-            // WebView with loading state
-            ZStack {
-                SignupWebView(url: URL(string: formUrl)!,
-                            showingConfirmation: $showingConfirmation,
-                            isLoading: $isLoading)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(AppStyle.backgroundColor)
-                    .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
-                    .padding()
-                    .shadow(color: Color.black.opacity(0.1), radius: 5)
-                
-                if isLoading {
-                    ProgressView()
-                        .scaleEffect(1.2)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.1))
-                }
-            }
-        }
-        .frame(width: 600, height: 800)
-        .background(AppStyle.backgroundColor)
-        .alert("Account Created", isPresented: $showingConfirmation) {
-            Button("OK") { dismiss() }
-        } message: {
-            Text("Your account request has been submitted. You will receive an email when your account is approved.")
-        }
-    }
-}
-
-struct SignupWebView: NSViewRepresentable {
-    let url: URL
-    @Binding var showingConfirmation: Bool
-    @Binding var isLoading: Bool
-    
-    func makeNSView(context: Context) -> WKWebView {
-        let config = WKWebViewConfiguration()
-        config.websiteDataStore = .nonPersistent()
-        
-        let webView = WKWebView(frame: .zero, configuration: config)
-        webView.navigationDelegate = context.coordinator
-        webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData))
-        
-        return webView
-    }
-    
-    func updateNSView(_ nsView: WKWebView, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, WKNavigationDelegate {
-        var parent: SignupWebView
-        
-        init(_ parent: SignupWebView) {
-            self.parent = parent
-        }
-        
-        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-            parent.isLoading = true
-        }
-        
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            parent.isLoading = false
-        }
-        
-        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            if let url = navigationAction.request.url {
-                if url.host?.contains("google.com") == true ||
-                   url.host?.contains("gstatic.com") == true {
-                    decisionHandler(.allow)
-                    
-                    if url.absoluteString.contains("formResponse") {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            self.parent.showingConfirmation = true
-                        }
-                    }
+            Group {
+                if isSecure {
+                    SecureField(placeholder, text: $text)
                 } else {
-                    decisionHandler(.cancel)
+                    TextField(placeholder, text: $text)
                 }
-            } else {
-                decisionHandler(.cancel)
             }
         }
+        .textFieldStyle(PlainTextFieldStyle())
+        .padding()
+        .frame(height: AppStyle.iconWidth)
+        .background(AppStyle.backgroundColor)
+        .cornerRadius(AppStyle.cornerRadius)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppStyle.cornerRadius)
+                .stroke(AppStyle.secondaryTextColor.opacity(0.3), lineWidth: 1)
+        )
     }
 }
-        
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Remove loading indicator when page loads
-            webView.subviews.first { $0 is NSProgressIndicator }?.removeFromSuperview()
-            
-            // Inject CSS to style the form
-            let css = """
-                body { background-color: #f5f5f7 !important; }
-                .freebirdFormviewerViewFormCard { border-radius: 12px !important; }
-                .freebirdFormviewerViewHeaderHeader { border-radius: 12px 12px 0 0 !important; }
-            """
-            
-            let script = """
-                var style = document.createElement('style');
-                style.innerHTML = '\(css)';
-                document.head.appendChild(style);
-            """
-            
-            webView.evaluateJavaScript(script, completionHandler: nil)
-        }
 
 struct NotificationBanner: View {
     let message: String
@@ -482,57 +404,20 @@ struct NotificationBanner: View {
     }
 }
 
-struct CustomTextField: View {
-    let placeholder: String
-    @Binding var text: String
-    var icon: String = ""
-    var isSecure: Bool = false
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            if !icon.isEmpty {
-                Image(systemName: icon)
-                    .foregroundColor(AppStyle.secondaryTextColor)
-                    .frame(width: 20)
-            }
-            
-            Group {
-                if isSecure {
-                    SecureField(placeholder, text: $text)
-                } else {
-                    TextField(placeholder, text: $text)
-                }
-            }
-        }
-        .textFieldStyle(PlainTextFieldStyle())
-        .padding()
-        .frame(height: AppStyle.iconWidth)
-        .background(AppStyle.backgroundColor)
-        .cornerRadius(AppStyle.cornerRadius)
-        .overlay(
-            RoundedRectangle(cornerRadius: AppStyle.cornerRadius)
-                .stroke(AppStyle.secondaryTextColor.opacity(0.3), lineWidth: 1)
-        )
-    }
-}
-
-struct WebView: NSViewRepresentable {
+struct SignupWebView: NSViewRepresentable {
     let url: URL
+    @Binding var showingConfirmation: Bool
+    @Binding var isLoading: Bool
     
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
+        config.websiteDataStore = .nonPersistent()
+        
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
-        webView.load(URLRequest(url: url))
-        
-        let indicator = NSProgressIndicator()
-        indicator.style = .spinning
-        indicator.startAnimation(nil)
-        webView.addSubview(indicator)
-        indicator.frame = NSRect(x: (webView.frame.width - 32) / 2,
-                               y: (webView.frame.height - 32) / 2,
-                               width: 32,
-                               height: 32)
+        webView.wantsLayer = true
+        webView.layer?.cornerRadius = AppStyle.cornerRadius
+        webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData))
         
         return webView
     }
@@ -540,10 +425,63 @@ struct WebView: NSViewRepresentable {
     func updateNSView(_ nsView: WKWebView, context: Context) {}
     
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(self)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
+        var parent: SignupWebView
+        
+        init(_ parent: SignupWebView) {
+            self.parent = parent
+        }
+        
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            parent.isLoading = true
+        }
+        
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            parent.isLoading = false
+            
+            let css = """
+            /* Apply app theme to entire form */
+            body {
+                background-color: \(AppStyle.backgroundColor.toHexString()) !important;
+                color: white !important;
+            }
+            
+            /* Make form container match app background */
+            .freebirdFormviewerViewFormContentWrapper {
+                background-color: \(AppStyle.backgroundColor.toHexString()) !important;
+            }
+            
+            /* Style form elements */
+            input, textarea {
+                background-color: \(AppStyle.controlBackgroundColor.toHexString()) !important;
+                color: white !important;
+                border: 1px solid \(AppStyle.secondaryTextColor.toHexString())4D !important;
+            }
+            
+            /* Style text and labels */
+            .freebirdFormviewerViewItemsItemItemTitle,
+            .freebirdFormviewerViewHeaderTitle,
+            .freebirdFormviewerViewHeaderDescription {
+                color: white !important;
+            }
+            
+            /* Style buttons */
+            .appsMaterialWizButtonPaperbuttonLabel {
+                color: white !important;
+            }
+            
+            .appsMaterialWizButtonPaperbuttonFilled {
+                background-color: \(AppStyle.accentColor.toHexString()) !important;
+            }
+            """
+            
+            let script = "var style = document.createElement('style'); style.innerHTML = `\(css)`; document.head.appendChild(style);"
+            webView.evaluateJavaScript(script, completionHandler: nil)
+        }
+        
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if let url = navigationAction.request.url {
                 if url.host?.contains("google.com") == true ||
@@ -552,7 +490,7 @@ struct WebView: NSViewRepresentable {
                     
                     if url.absoluteString.contains("formResponse") {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            NotificationCenter.default.post(name: .init("FormSubmitted"), object: nil)
+                            self.parent.showingConfirmation = true
                         }
                     }
                 } else {
@@ -561,10 +499,6 @@ struct WebView: NSViewRepresentable {
             } else {
                 decisionHandler(.cancel)
             }
-        }
-        
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            webView.subviews.first { $0 is NSProgressIndicator }?.removeFromSuperview()
         }
     }
 }

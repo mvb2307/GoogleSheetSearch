@@ -1265,7 +1265,6 @@ struct SettingsView: View {
         storageUnit = "TB"
         updateStats()
     }
-    
     private func resetUserAccountsURL() {
         Task {
             await parser.updateUserAccountsURL("")

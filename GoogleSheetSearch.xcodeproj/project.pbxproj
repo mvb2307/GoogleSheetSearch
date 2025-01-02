@@ -19,6 +19,7 @@
 		4B6B72A12D24506A00C2A470 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6B72A02D24506A00C2A470 /* LoginView.swift */; };
 		4B6B72A32D245DE000C2A470 /* LoginModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6B72A22D245DE000C2A470 /* LoginModalView.swift */; };
 		4B6B72A52D249BE200C2A470 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6B72A42D249BE200C2A470 /* Notifications.swift */; };
+		4B6B72A72D26D61500C2A470 /* SignupFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6B72A62D26D61500C2A470 /* SignupFormView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		4B6B72A02D24506A00C2A470 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		4B6B72A22D245DE000C2A470 /* LoginModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModalView.swift; sourceTree = "<group>"; };
 		4B6B72A42D249BE200C2A470 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		4B6B72A62D26D61500C2A470 /* SignupFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupFormView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				4B6B72A02D24506A00C2A470 /* LoginView.swift */,
+				4B6B72A62D26D61500C2A470 /* SignupFormView.swift */,
 				4B6B72A22D245DE000C2A470 /* LoginModalView.swift */,
 				4B138DD32CFF9EF5008286D5 /* GoogleSheetSearchApp.swift */,
 				4B138E012CFF9FFC008286D5 /* GoogleSheetsParser.swift */,
@@ -285,6 +288,7 @@
 				4B138DD42CFF9EF5008286D5 /* GoogleSheetSearchApp.swift in Sources */,
 				4B138E022CFF9FFC008286D5 /* GoogleSheetsParser.swift in Sources */,
 				4B6B72A12D24506A00C2A470 /* LoginView.swift in Sources */,
+				4B6B72A72D26D61500C2A470 /* SignupFormView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

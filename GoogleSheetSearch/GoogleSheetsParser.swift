@@ -393,7 +393,7 @@ class GoogleSheetsParser: ObservableObject {
     // Modify the init() method to include userAccountsURL initialization
     init() {
         self.currentURL = "https://docs.google.com/spreadsheets/u/1/d/e/2PACX-1vTAyLw8I4Jwuqmq_n4fYdM5JdZba260kNdtHIEKXE6vLf3WF3u2mISZG-Y1ckMRejY79N7KRpO3wezI/pubhtml"
-        self.userAccountsURL = UserDefaults.standard.string(forKey: "UserAccountsSheetURL") ?? "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuRqeXwVMciCj6h3V7-CVECceDk_N5l01NM2vDrjd1tvu2MUY7f6G93jfTiUqXt1cxhyofS01Ca-iN/pubhtml"
+        self.userAccountsURL = UserDefaults.standard.string(forKey: "UserAccountsSheetURL") ?? "https://docs.google.com/spreadsheets/d/19gmkP27BtoP9xbDvrhGNBx2uN1BYWLAZNTSy8WRcNe4/edit?usp=sharing"
         setupRefreshTimer()
     }
 }
