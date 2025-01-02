@@ -57,6 +57,7 @@ struct LoginView: View {
             }
         }
     }
+    
     private var loginModal: some View {
         VStack {
             if showModal {
@@ -98,7 +99,6 @@ struct LoginView: View {
                             clearStoredCredentials()
                         }
                     }
-                    
                     Button(action: {
                         Task {
                             isLoading = true
@@ -225,9 +225,10 @@ struct LoginView: View {
             }
         } catch {
             print("Error fetching user data: \(error.localizedDescription)")
+            self.users = [] // Clear users array on error
         }
     }
-
+    
     private func login() async {
         if username.isEmpty || password.isEmpty {
             errorMessage = "Please enter both username and password"
@@ -235,7 +236,17 @@ struct LoginView: View {
             return
         }
         
+        // Try to fetch fresh data first
+        await fetchUsernames()
+        
         try? await Task.sleep(nanoseconds: 1_000_000_000)
+        
+        // Check if we have any users data
+        if users.isEmpty {
+            errorMessage = "Network error. Please check your connection and try again."
+            showNotification = true
+            return
+        }
         
         if let user = users.first(where: { $0.username == username }) {
             if user.password == password {
@@ -315,28 +326,21 @@ struct LoginView: View {
                 return
             }
             
+            // Just fill in the credentials but don't auto-login
             username = savedUsername
             password = savedPassword
             keepLoggedIn = true
+            }
         }
     }
-}
 
-// Add Color extension for hex conversion
-extension Color {
-    func toHexString() -> String {
-        let components = NSColor(self).cgColor.components!
-        let r = Float(components[0])
-        let g = Float(components[1])
-        let b = Float(components[2])
-        return String(format: "#%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255))
-    }
-}
+// Supporting Views
 struct CustomTextField: View {
     let placeholder: String
     @Binding var text: String
     var icon: String = ""
     var isSecure: Bool = false
+    @State private var showPassword: Bool = false
     
     var body: some View {
         HStack(spacing: 12) {
@@ -348,10 +352,25 @@ struct CustomTextField: View {
             
             Group {
                 if isSecure {
-                    SecureField(placeholder, text: $text)
+                    if showPassword {
+                        TextField(placeholder, text: $text)
+                    } else {
+                        SecureField(placeholder, text: $text)
+                    }
                 } else {
                     TextField(placeholder, text: $text)
                 }
+            }
+            
+            if isSecure {
+                Button(action: {
+                    showPassword.toggle()
+                }) {
+                    Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
+                        .foregroundColor(AppStyle.secondaryTextColor)
+                        .frame(width: 20)
+                }
+                .buttonStyle(.plain)
             }
         }
         .textFieldStyle(PlainTextFieldStyle())
@@ -404,101 +423,20 @@ struct NotificationBanner: View {
     }
 }
 
-struct SignupWebView: NSViewRepresentable {
-    let url: URL
-    @Binding var showingConfirmation: Bool
-    @Binding var isLoading: Bool
-    
-    func makeNSView(context: Context) -> WKWebView {
-        let config = WKWebViewConfiguration()
-        config.websiteDataStore = .nonPersistent()
-        
-        let webView = WKWebView(frame: .zero, configuration: config)
-        webView.navigationDelegate = context.coordinator
-        webView.wantsLayer = true
-        webView.layer?.cornerRadius = AppStyle.cornerRadius
-        webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData))
-        
-        return webView
+extension Color {
+    func toHexString() -> String {
+        let components = NSColor(self).cgColor.components!
+        let r = Float(components[0])
+        let g = Float(components[1])
+        let b = Float(components[2])
+        return String(format: "#%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255))
     }
-    
-    func updateNSView(_ nsView: WKWebView, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, WKNavigationDelegate {
-        var parent: SignupWebView
-        
-        init(_ parent: SignupWebView) {
-            self.parent = parent
-        }
-        
-        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-            parent.isLoading = true
-        }
-        
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            parent.isLoading = false
-            
-            let css = """
-            /* Apply app theme to entire form */
-            body {
-                background-color: \(AppStyle.backgroundColor.toHexString()) !important;
-                color: white !important;
-            }
-            
-            /* Make form container match app background */
-            .freebirdFormviewerViewFormContentWrapper {
-                background-color: \(AppStyle.backgroundColor.toHexString()) !important;
-            }
-            
-            /* Style form elements */
-            input, textarea {
-                background-color: \(AppStyle.controlBackgroundColor.toHexString()) !important;
-                color: white !important;
-                border: 1px solid \(AppStyle.secondaryTextColor.toHexString())4D !important;
-            }
-            
-            /* Style text and labels */
-            .freebirdFormviewerViewItemsItemItemTitle,
-            .freebirdFormviewerViewHeaderTitle,
-            .freebirdFormviewerViewHeaderDescription {
-                color: white !important;
-            }
-            
-            /* Style buttons */
-            .appsMaterialWizButtonPaperbuttonLabel {
-                color: white !important;
-            }
-            
-            .appsMaterialWizButtonPaperbuttonFilled {
-                background-color: \(AppStyle.accentColor.toHexString()) !important;
-            }
-            """
-            
-            let script = "var style = document.createElement('style'); style.innerHTML = `\(css)`; document.head.appendChild(style);"
-            webView.evaluateJavaScript(script, completionHandler: nil)
-        }
-        
-        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            if let url = navigationAction.request.url {
-                if url.host?.contains("google.com") == true ||
-                    url.host?.contains("gstatic.com") == true {
-                    decisionHandler(.allow)
-                    
-                    if url.absoluteString.contains("formResponse") {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            self.parent.showingConfirmation = true
-                        }
-                    }
-                } else {
-                    decisionHandler(.cancel)
-                }
-            } else {
-                decisionHandler(.cancel)
-            }
-        }
+}
+
+extension Bundle {
+    var appVersionString: String {
+        let version = self.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        let build = self.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "\(version) (\(build))"
     }
 }
