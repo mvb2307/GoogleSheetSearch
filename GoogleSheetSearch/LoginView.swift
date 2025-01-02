@@ -313,7 +313,7 @@ struct SignupFormView: View {
     let formUrl: String
     
     @State private var showingConfirmation = false
-    @State private var webViewHeight: CGFloat = 600
+    @State private var isLoading = true
     
     var body: some View {
         VStack(spacing: 0) {
@@ -337,16 +337,29 @@ struct SignupFormView: View {
             .padding()
             .background(AppStyle.controlBackgroundColor)
             
-            // WebView
-            SignupWebView(url: URL(string: formUrl)!, showingConfirmation: $showingConfirmation)
-                .frame(height: webViewHeight)
+            // WebView with loading state
+            ZStack {
+                SignupWebView(url: URL(string: formUrl)!,
+                            showingConfirmation: $showingConfirmation,
+                            isLoading: $isLoading)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(AppStyle.backgroundColor)
+                    .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
+                    .padding()
+                    .shadow(color: Color.black.opacity(0.1), radius: 5)
+                
+                if isLoading {
+                    ProgressView()
+                        .scaleEffect(1.2)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.black.opacity(0.1))
+                }
+            }
         }
-        .frame(width: 500)
+        .frame(width: 600, height: 800)
         .background(AppStyle.backgroundColor)
         .alert("Account Created", isPresented: $showingConfirmation) {
-            Button("OK") {
-                dismiss()
-            }
+            Button("OK") { dismiss() }
         } message: {
             Text("Your account request has been submitted. You will receive an email when your account is approved.")
         }
@@ -356,22 +369,15 @@ struct SignupFormView: View {
 struct SignupWebView: NSViewRepresentable {
     let url: URL
     @Binding var showingConfirmation: Bool
+    @Binding var isLoading: Bool
     
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
+        config.websiteDataStore = .nonPersistent()
+        
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
-        webView.load(URLRequest(url: url))
-        
-        // Add loading indicator
-        let indicator = NSProgressIndicator()
-        indicator.style = .spinning
-        indicator.startAnimation(nil)
-        webView.addSubview(indicator)
-        indicator.frame = NSRect(x: (webView.frame.width - 32) / 2,
-                               y: (webView.frame.height - 32) / 2,
-                               width: 32,
-                               height: 32)
+        webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData))
         
         return webView
     }
@@ -389,13 +395,20 @@ struct SignupWebView: NSViewRepresentable {
             self.parent = parent
         }
         
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            parent.isLoading = true
+        }
+        
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            parent.isLoading = false
+        }
+        
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if let url = navigationAction.request.url {
                 if url.host?.contains("google.com") == true ||
-                    url.host?.contains("gstatic.com") == true {
+                   url.host?.contains("gstatic.com") == true {
                     decisionHandler(.allow)
                     
-                    // Check if this is the form submission confirmation page
                     if url.absoluteString.contains("formResponse") {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                             self.parent.showingConfirmation = true
@@ -408,6 +421,8 @@ struct SignupWebView: NSViewRepresentable {
                 decisionHandler(.cancel)
             }
         }
+    }
+}
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             // Remove loading indicator when page loads
@@ -428,8 +443,6 @@ struct SignupWebView: NSViewRepresentable {
             
             webView.evaluateJavaScript(script, completionHandler: nil)
         }
-    }
-}
 
 struct NotificationBanner: View {
     let message: String

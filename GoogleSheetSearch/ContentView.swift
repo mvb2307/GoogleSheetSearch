@@ -1217,6 +1217,7 @@ struct SettingsView: View {
     @AppStorage("storageUnit") private var storageUnit = "TB"
     @State private var stats: StorageStats = .empty
     
+    
     // Move stats to a separate struct for better state management
     private struct StorageStats: Equatable {
         let used: Double
@@ -1263,6 +1264,12 @@ struct SettingsView: View {
         totalStorageCapacity = 0.0
         storageUnit = "TB"
         updateStats()
+    }
+    
+    private func resetUserAccountsURL() {
+        Task {
+            await parser.updateUserAccountsURL("")
+        }
     }
     
     var body: some View {
@@ -1326,6 +1333,69 @@ struct SettingsView: View {
                             Text("What to show when the app starts")
                                 .font(.system(size: 12))
                                 .foregroundStyle(.secondary)
+                        }
+                    )
+                    
+                    SettingsSection(
+                        icon: "link",
+                        title: "User Accounts URL",
+                        content: {
+                            VStack(alignment: .leading, spacing: 12) {
+                                // Active URL display or warning
+                                if let currentURL = parser.userAccountsURL, !currentURL.isEmpty {
+                                    Text("Active URL:")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(.secondary)
+                                    
+                                    Button(action: {
+                                        if let url = URL(string: currentURL) {
+                                            NSWorkspace.shared.open(url)
+                                        }
+                                    }) {
+                                        Text(currentURL)
+                                            .font(.system(size: 13))
+                                            .foregroundColor(.blue)
+                                            .textSelection(.enabled)
+                                            .multilineTextAlignment(.leading)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .padding(8)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(Color(.textBackgroundColor))
+                                    .cornerRadius(6)
+                                }
+                                
+                                Text("New URL:")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.secondary)
+                                
+                                TextField("Enter new User Accounts Sheet URL", text: $newURL)
+                                    .textFieldStyle(.roundedBorder)
+                                
+                                HStack(spacing: 12) {
+                                    Button(action: {
+                                        Task {
+                                            if !newURL.isEmpty {
+                                                await parser.updateUserAccountsURL(newURL)
+                                                newURL = ""  // Clear the input field after update
+                                            }
+                                        }
+                                    }) {
+                                        Label("Update URL", systemImage: "link")
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .disabled(newURL.isEmpty)
+                                    
+                                    Button("Reset") {
+                                        resetUserAccountsURL()
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                                
+                                Text("Enter a new URL above or reset to start fresh")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     )
                     
