@@ -55,6 +55,7 @@
 		4B138DEF2CFF9EF6008286D5 /* GoogleSheetSearchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetSearchUITests.swift; sourceTree = "<group>"; };
 		4B138DF12CFF9EF6008286D5 /* GoogleSheetSearchUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetSearchUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		4B138E012CFF9FFC008286D5 /* GoogleSheetsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetsParser.swift; sourceTree = "<group>"; };
+		4B1E170E2D27535D0084F41E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		4B6B72A02D24506A00C2A470 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		4B6B72A22D245DE000C2A470 /* LoginModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModalView.swift; sourceTree = "<group>"; };
 		4B6B72A42D249BE200C2A470 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
@@ -113,6 +114,7 @@
 		4B138DD22CFF9EF5008286D5 /* GoogleSheetSearch */ = {
 			isa = PBXGroup;
 			children = (
+				4B1E170E2D27535D0084F41E /* Info.plist */,
 				4B6B72A02D24506A00C2A470 /* LoginView.swift */,
 				4B6B72A62D26D61500C2A470 /* SignupFormView.swift */,
 				4B6B72A22D245DE000C2A470 /* LoginModalView.swift */,
@@ -464,6 +466,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GoogleSheetSearch/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -495,6 +498,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GoogleSheetSearch/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (

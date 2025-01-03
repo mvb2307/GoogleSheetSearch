@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict/>
+    </array>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>This app needs permission to install itself in the Applications folder.</string>
+    <key>NSAppleScriptEnabled</key>
+    <true/>
+    <key>NSSystemAdministrationUsageDescription</key>
+    <string>Administrator access is needed to install this app in the Applications folder.</string>
+    <key>LSUIElement</key>
+    <true/>
+</dict>
+</plist>
