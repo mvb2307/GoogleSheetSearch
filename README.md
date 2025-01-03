@@ -19,7 +19,7 @@ A native macOS application that enables quick and efficient searching through Go
 
 ## ⚙️ Installation
 
-### For Users
+### For Users (Please check back periodically untill there is a release available)
 1. Download the latest release from the [Releases](https://github.com/mvb2307/GoogleSheetSearch/releases) page.
 2. Open the `.dmg` file.
 3. Drag the application to your **Applications** folder.
@@ -77,10 +77,6 @@ No Google Sheets API is used in this project.
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
 4. Push to the branch (`git push origin feature/AmazingFeature`).
 5. Open a Pull Request.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ## 👤 Author
 
