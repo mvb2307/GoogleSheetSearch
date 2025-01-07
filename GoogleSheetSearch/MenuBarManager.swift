@@ -115,7 +115,7 @@ class MenuBarManager: NSObject, ObservableObject, NSPopoverDelegate {
             
             // Calculate the ideal position for the popover
             let idealX = buttonFrame.minX - (700 - buttonFrame.width) / 2 // Center horizontally
-            let idealY = buttonFrame.minY - 5 // Position just below the menu bar
+            _ = buttonFrame.minY - 5 // Position just below the menu bar
             
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             

@@ -30,6 +30,11 @@ struct GoogleSheetSearchApp: App {
                         .frame(minWidth: 400, minHeight: 500)
                 }
             }
+            .onAppear {
+                // Ensures the app runs as a regular app with Dock icon
+                NSApp.setActivationPolicy(.regular)
+                NSApp.activate(ignoringOtherApps: true)
+            }
         }
         .commands {
             CommandGroup(after: .appInfo) {

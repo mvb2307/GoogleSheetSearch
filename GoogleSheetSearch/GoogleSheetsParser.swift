@@ -221,6 +221,11 @@ class GoogleSheetsParser: ObservableObject {
             "433_HDD_10",
             "SSD Backups (ON NAS)",
             "433 EDITS - 00 PAID PARTNERSHIPS",
+            "433_HDD_11",
+            "433_HDD_12",
+            "433_HDD_13",
+            "433_HDD_14",
+            "433_HDD_15",
         ]
         
         let gridContainers = try doc.select("div.ritz.grid-container")

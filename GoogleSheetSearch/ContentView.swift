@@ -969,11 +969,26 @@ struct DocumentationView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     Group {
                         DocumentationSection(
+                            icon: "checklist.checked",
+                            title: "INDEX",
+                            content: """
+                            • What does this app do?
+                            • Using the Search
+                            • Data Updates
+                            • Settings & Preferences
+                            • Setting up the Google Sheet URL
+                            • Need help?
+                            • Storage Calculator
+                            • Sheet Management
+                            • User Accounts
+                            """
+                        )
+                        DocumentationSection(
                             icon: "info.circle.fill",
                             title: "What does this app do?",
                             content: """
                             This app helps you quickly find files across multiple storage locations. Features include:
-                            • Real-time file search across all sheets
+                            • Real-time file search across all Google sheets showing the HDD & SSD Contents.
                             • Automatic data refresh
                             • File size tracking and totals
                             • Sortable columns for all views
@@ -1003,6 +1018,11 @@ struct DocumentationView: View {
                             • Right-click sheets to rename them
                             • Drag and drop to reorder sheets
                             • Reset custom names via context menu
+                            
+                            Searching from the Menu Bar:
+                            • You can now search from the menu bar without opening the app
+                              simply click on the magnifying glass icon there and type what
+                              you are looking for.
                             """
                         )
                         
@@ -1128,6 +1148,41 @@ struct DocumentationView: View {
                             • Drag frequently used sheets to the top
                             • Right-click menu shows all sheet options
                             • Changes only affect local display
+                            """
+                        )
+                        
+                        // Add new section for Sheet Management
+                        DocumentationSection(
+                            icon: "person.circle.fill",
+                            title: "User Accounts",
+                            content: """
+                            Creating & Managing User Accounts:
+
+                            Creating an Account:
+                            • Start the app and click on the "Create Account" button.
+                            • Fill out the form with the required details.
+                            • Click "Create Account" to finalize your account setup.
+
+                            Logging In:
+                            • Enter your credentials to log in.
+                            • Select "Keep me signed in" for easier access.
+                            • Note: The app will log you out after restarting your Mac or relaunching the app.
+                            
+                            Logging Out:
+                            • Simply press the blue cross button in the top right of the app.
+
+                            Forgotten Password:
+                            • Contact the app administrator for help.
+                            • Alternatively, reset your password via the app:
+                            • Go to the Settings section.
+                            • Navigate to User Accounts URL.
+                            • Click the URL to access the Passwords section.
+                            • Locate your account and set a new password.
+
+                            Tips:
+                            • Use "Keep me signed in" for quicker access.
+                            • Restarting the app or Mac will require you to log in again.
+                            • Regularly update your password for enhanced security.
                             """
                         )
                     }
@@ -1757,39 +1812,5 @@ struct StorageStatRow: View {
                 .bold()
         }
         .font(.system(size: 13))
-    }
-}
-// Add this at the very bottom of the file, after all existing code
-
-extension ContentView {
-    struct LogoutButton: View {
-        @Binding var isAuthenticated: Bool
-        
-        var body: some View {
-            VStack(spacing: 0) {
-                Divider()
-                Button(action: {
-                    withAnimation(.spring(response: 0.3)) {
-                        isAuthenticated = false
-                    }
-                }) {
-                    HStack {
-                        Image(systemName: "rectangle.portrait.and.arrow.right")
-                            .font(.system(size: 16))
-                            .symbolRenderingMode(.hierarchical)
-                        Text("Logout")
-                            .font(.system(size: 14))
-                        Spacer()
-                    }
-                    .foregroundStyle(.red)
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 12)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .padding(.vertical, 4)
-                .background(Color(.controlBackgroundColor))
-            }
-        }
     }
 }
