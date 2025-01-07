@@ -922,7 +922,7 @@ struct StatusBarView: View {
             Spacer()
             
             // Update the total size display
-            Text("Total: \(String(format: "%.2f", totalGB.0)) \(totalGB.1)")
+            Text("Total Storage: \(String(format: "%.2f", totalGB.0)) \(totalGB.1)")
                 .foregroundStyle(.secondary)
                 .font(.system(size: 12))
             

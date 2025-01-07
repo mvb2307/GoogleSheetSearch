@@ -219,20 +219,42 @@ struct LoginView: View {
         do {
             let (htmlData, _) = try await URLSession.shared.data(from: url)
             let document = try SwiftSoup.parse(String(data: htmlData, encoding: .utf8)!)
-            let rows = try document.select("table tbody tr")
             
-            self.users = try rows.map { row in
+            let rows = try document.select("table tbody tr")
+            print("Rows fetched: \(rows.count)")
+            
+            self.users = []
+            
+            let maxRows = min(50, rows.count - 1)  // Limit the rows to 250 for performance
+
+            for index in 1...maxRows {
+                let row = rows[index]
                 let cells = try row.select("td")
-                let username = try cells[0].text()
-                let password = try cells[1].text()
-                return (username, password)
+                
+                guard cells.count > 5 else {
+                    print("Row \(index) skipped: Not enough columns")
+                    continue
+                }
+                
+                let email = try cells[5].text().trimmingCharacters(in: .whitespacesAndNewlines)
+                let password = try cells[1].text().trimmingCharacters(in: .whitespacesAndNewlines)
+                
+                // Skip rows with empty email or password
+                if email.isEmpty || password.isEmpty {
+                    print("Row \(index) skipped: Empty email or password")
+                    continue
+                }
+                
+                print("Fetched user: \(email), password: \(password)")
+                self.users.append((email, password))
             }
+            
         } catch {
             print("Error fetching user data: \(error.localizedDescription)")
-            self.users = [] // Clear users array on error
+            self.users = []  // Clear users array on error
         }
     }
-    
+
     private func login() async {
         if username.isEmpty || password.isEmpty {
             errorMessage = "Please enter both username and password"
@@ -240,10 +262,14 @@ struct LoginView: View {
             return
         }
         
-        // Try to fetch fresh data first
+        // Fetch usernames from the Google Sheets data
         await fetchUsernames()
-        
+
+        // Wait a bit to ensure data is fetched
         try? await Task.sleep(nanoseconds: 1_000_000_000)
+
+        // Debugging output to confirm that users were fetched
+        print("Users fetched: \(users.count)")
         
         // Check if we have any users data
         if users.isEmpty {
@@ -251,24 +277,21 @@ struct LoginView: View {
             showNotification = true
             return
         }
-        
-        if let user = users.first(where: { $0.username == username }) {
-            if user.password == password {
-                isLoggedIn = true
-                errorMessage = nil
-                showNotification = true
-            } else {
-                isLoggedIn = false
-                errorMessage = "Invalid username or password"
-                showNotification = true
-            }
+
+        // Check if the username and password match any entry
+        if let user = users.first(where: { $0.username == username && $0.password == password }) {
+            // Successful login
+            isLoggedIn = true
+            errorMessage = nil
+            showNotification = true
         } else {
+            // Invalid credentials
             isLoggedIn = false
             errorMessage = "Invalid username or password"
             showNotification = true
         }
     }
-    
+
     private func dismissNotification() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation {
