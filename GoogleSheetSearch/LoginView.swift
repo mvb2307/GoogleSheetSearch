@@ -35,28 +35,32 @@ struct LoginView: View {
     @State private var users: [(username: String, password: String)] = []
     
     var body: some View {
-        VStack {
-            if isAuthenticated {
-                VStack(spacing: 0) {
-                    ContentView(parser: parser, isAuthenticated: $isAuthenticated)
-                        .transition(.opacity.combined(with: .move(edge: .trailing)))
-                        .frame(maxHeight: .infinity)
+        if !isLoginEnabled {
+            ContentView(parser: parser, isAuthenticated: $isAuthenticated)
+        } else {
+            VStack {
+                if isAuthenticated {
+                    VStack(spacing: 0) {
+                        ContentView(parser: parser, isAuthenticated: $isAuthenticated)
+                            .transition(.opacity.combined(with: .move(edge: .trailing)))
+                            .frame(maxHeight: .infinity)
+                    }
+                } else {
+                    loginModal
                 }
-            } else {
-                loginModal
             }
-        }
-        .background(AppStyle.backgroundColor)
-        .edgesIgnoringSafeArea(.all)
-        .onAppear {
-            Task {
-                await fetchUsernames()
-                checkStoredCredentials()
+            .background(AppStyle.backgroundColor)
+            .edgesIgnoringSafeArea(.all)
+            .onAppear {
+                Task {
+                    await fetchUsernames()
+                    checkStoredCredentials()
+                }
             }
-        }
-        .onChange(of: scenePhase) { newPhase in
-            if newPhase == .active {
-                NSApp.activate(ignoringOtherApps: true)
+            .onChange(of: scenePhase) { newPhase in
+                if newPhase == .active {
+                    NSApp.activate(ignoringOtherApps: true)
+                }
             }
         }
     }
@@ -497,6 +501,22 @@ struct LogoutButton: View {
             .buttonStyle(.plain)
             .padding(.vertical, 4)
             .background(Color(.controlBackgroundColor))
+        }
+    }
+}
+// MARK: - RootView with Login Toggle
+
+private let isLoginEnabled = false // Toggle Login on/off (true for ON & False for OFF).
+
+struct RootView: View {
+    @ObservedObject var parser: GoogleSheetsParser
+    @State private var isAuthenticated = !isLoginEnabled // Auto-authenticate if login is disabled
+
+    var body: some View {
+        if isLoginEnabled {
+            LoginView(isAuthenticated: $isAuthenticated, parser: parser)
+        } else {
+            ContentView(parser: parser, isAuthenticated: $isAuthenticated)
         }
     }
 }
