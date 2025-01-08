@@ -189,117 +189,103 @@ class GoogleSheetsParser: ObservableObject {
     }
     
     private func parseHTMLData(_ data: Data) async throws -> [SheetData] {
-        let parseStartTime = Date()
-        print("📦 Data size to parse: \(data.count) bytes")
-        
-        guard let htmlString = String(data: data, encoding: .utf8) else {
-            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert data to string"])
-        }
-        
-        let doc = try SwiftSoup.parse(htmlString)
-        
-        // Try to find last modified info
-        let metaTags = try doc.select("meta[property=og:updated_time], meta[name=revised], meta[name=last-modified]")
-        let lastModified = try metaTags.first()?.attr("content")
-        
-        let lastModifiedDate = lastModified.flatMap { dateString in
-            let formatter = ISO8601DateFormatter()
-            return formatter.date(from: dateString)
-        }
-        
-        let sheetNames = [
-            "WH '18/'19_1",
-            "433_HDD_1",
-            "433_HDD_2",
-            "433_HDD_3",
-            "433_HDD_4",
-            "433_HDD_5",
-            "433_HDD_6",
-            "433_HDD_7",
-            "433_HDD_8",
-            "433_HDD_9",
-            "433_HDD_10",
-            "SSD Backups (ON NAS)",
-            "433 EDITS - 00 PAID PARTNERSHIPS",
-            "433_HDD_11",
-            "433_HDD_12",
-            "433_HDD_13",
-            "433_HDD_14",
-            "433_HDD_15",
-        ]
-        
-        let gridContainers = try doc.select("div.ritz.grid-container")
-        var parsedSheets: [SheetData] = []
-        
-        for (index, container) in gridContainers.enumerated() {
-            guard let table = try container.select("table").first() else { continue }
+            let parseStartTime = Date()
+            print("📦 Data size to parse: \(data.count) bytes")
             
-            let rows = try table.select("tr")
-            let sheetName = index < sheetNames.count ? sheetNames[index] : "Sheet \(index + 1)"
+            guard let htmlString = String(data: data, encoding: .utf8) else {
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert data to string"])
+            }
             
-            var files: [FileEntry] = []
-            var hasValidContent = false
+            let doc = try SwiftSoup.parse(htmlString)
             
-            for i in 1..<rows.size() {
-                let row = rows.get(i)
-                let cells = try row.select("td")
-                
-                if cells.size() >= 2 {
-                    let folderName = try cells.get(0).text().trimmingCharacters(in: .whitespacesAndNewlines)
-                    let fileName = try cells.get(1).text().trimmingCharacters(in: .whitespacesAndNewlines)
-                    let dateCreated = cells.size() >= 3 ? try cells.get(2).text().trimmingCharacters(in: .whitespacesAndNewlines) : nil
-                    let size = cells.size() >= 4 ? try cells.get(3).text().trimmingCharacters(in: .whitespacesAndNewlines) : nil
-                    
-                    if (!folderName.isEmpty && !fileName.isEmpty &&
-                        folderName != "Folder Name" && fileName != "Name" &&
-                        !fileName.hasPrefix("All files")) ||
-                       sheetName == "SSD Backups (ON NAS)" ||
-                       sheetName == "433 EDITS - 00 PAID PARTNERSHIPS" {
-                        hasValidContent = true
-                        let file = FileEntry(
-                            name: fileName,
-                            folderName: folderName,
-                            dateCreated: dateCreated,
-                            size: size
-                        )
-                        files.append(file)
-                    }
+            // Try to find last modified info
+            let metaTags = try doc.select("meta[property=og:updated_time], meta[name=revised], meta[name=last-modified]")
+            let lastModified = try metaTags.first()?.attr("content")
+            
+            let lastModifiedDate = lastModified.flatMap { dateString in
+                let formatter = ISO8601DateFormatter()
+                return formatter.date(from: dateString)
+            }
+            
+            // Extract sheet names from sheet buttons
+            let sheetButtons = try doc.select("li[id^=sheet-button-] > a")
+            var sheetNames: [String] = []
+            
+            for button in sheetButtons {
+                if let sheetName = try? button.text().trimmingCharacters(in: .whitespacesAndNewlines),
+                   !sheetName.isEmpty {
+                    sheetNames.append(sheetName)
                 }
             }
             
-            if hasValidContent ||
-               sheetName == "SSD Backups (ON NAS)" ||
-               sheetName == "433 EDITS - 00 PAID PARTNERSHIPS" ||
-               sheetName.hasPrefix("Sheet") {
-                let sheetData = SheetData(
-                    sheetName: sheetName,
-                    files: files,
-                    lastModified: lastModifiedDate
-                )
-                parsedSheets.append(sheetData)
+            print("Found sheet names from buttons: \(sheetNames)")
+            
+            let gridContainers = try doc.select("div.ritz.grid-container")
+            var parsedSheets: [SheetData] = []
+            
+            for (index, container) in gridContainers.enumerated() {
+                guard let table = try container.select("table").first() else { continue }
+                
+                // Use the sheet name from buttons if available, otherwise use a numbered fallback
+                let sheetName = index < sheetNames.count ? sheetNames[index] : "Sheet \(index + 1)"
+                
+                let rows = try table.select("tr")
+                var files: [FileEntry] = []
+                var hasValidContent = false
+                
+                // Start from index 1 to skip header row
+                for i in 1..<rows.size() {
+                    let row = rows.get(i)
+                    let cells = try row.select("td")
+                    
+                    if cells.size() >= 2 {
+                        let folderName = try cells.get(0).text().trimmingCharacters(in: .whitespacesAndNewlines)
+                        let fileName = try cells.get(1).text().trimmingCharacters(in: .whitespacesAndNewlines)
+                        let dateCreated = cells.size() >= 3 ? try cells.get(2).text().trimmingCharacters(in: .whitespacesAndNewlines) : nil
+                        let size = cells.size() >= 4 ? try cells.get(3).text().trimmingCharacters(in: .whitespacesAndNewlines) : nil
+                        
+                        if (!folderName.isEmpty && !fileName.isEmpty &&
+                            folderName != "Folder Name" && fileName != "Name" &&
+                            !fileName.hasPrefix("All files")) {
+                            hasValidContent = true
+                            let file = FileEntry(
+                                name: fileName,
+                                folderName: folderName,
+                                dateCreated: dateCreated,
+                                size: size
+                            )
+                            files.append(file)
+                        }
+                    }
+                }
+                
+                if hasValidContent || !sheetName.hasPrefix("Sheet ") {
+                    let sheetData = SheetData(
+                        sheetName: sheetName,
+                        files: files,
+                        lastModified: lastModifiedDate
+                    )
+                    parsedSheets.append(sheetData)
+                }
             }
+            
+            if parsedSheets.isEmpty {
+                throw NSError(domain: "", code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "No files found in sheets"])
+            }
+            
+            print("""
+            📝 Parse Details:
+            ----------------
+            Sheets Found: \(parsedSheets.count)
+            Sheet Names From Buttons: \(sheetNames.joined(separator: ", "))
+            Total Files: \(parsedSheets.reduce(0) { $0 + $1.files.count })
+            Parse Time: \(String(format: "%.2f", Date().timeIntervalSince(parseStartTime)))s
+            ----------------
+            """)
+            
+            return parsedSheets
         }
-        
-        if parsedSheets.isEmpty {
-            throw NSError(domain: "", code: -1,
-                userInfo: [NSLocalizedDescriptionKey: "No files found in sheets"])
-        }
-        
-        print("Found \(parsedSheets.count) sheets with \(parsedSheets.reduce(0) { $0 + $1.files.count }) total files")
-        
-        let parseEndTime = Date()
-        let parseDuration = parseEndTime.timeIntervalSince(parseStartTime)
-        print("""
-        📝 Parse Details:
-        ----------------
-        Sheets Found: \(parsedSheets.count)
-        Total Files: \(parsedSheets.reduce(0) { $0 + $1.files.count })
-        Parse Time: \(String(format: "%.2f", parseDuration))s
-        ----------------
-        """)
-        
-        return parsedSheets
-    }
     
     var totalSize: (Double, String) {
         let totalGB = sheets.flatMap { $0.files }.compactMap { file -> Double? in
