@@ -21,9 +21,6 @@ A native macOS application that enables quick and efficient searching through Go
 
 ### For Users (Please check back periodically untill there is a release available)
 1. Download the latest release from the [Releases](https://github.com/mvb2307/GoogleSheetSearch/releases) page.
-2. Open the `.dmg` file.
-3. Drag the application to your **Applications** folder.
-4. Launch **Google Sheet Search** from your **Applications** folder.
 
 ### For Developers
 1. Clone the repository:
