@@ -306,21 +306,18 @@ struct ResultsListView: View {
                         let formatted = parser.formatSize(size)
                         Text("\(String(format: "%.2f", formatted.0)) \(formatted.1)")
                             .font(.system(size: 13))
-                            .foregroundColor(.secondary)
                             .lineLimit(1)
                     } else {
                         Text("-")
                             .font(.system(size: 13))
-                            .foregroundColor(.secondary)
                             .lineLimit(1)
                     }
                 }
                 .width(min: 100)
                 
-                TableColumn("Description/ Location", value: \.size.orEmpty) { file in
+                TableColumn("Location", value: \.size.orEmpty) { file in
                     Text(file.size ?? "-")
                         .font(.system(size: 13))
-                        .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
                 .width(min: 200)

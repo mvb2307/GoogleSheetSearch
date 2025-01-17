@@ -222,7 +222,7 @@ struct ContentView: View {
         notificationManager.dismissAllUpdates()
         
         // Take the first 10 items (newest changes)
-        let lastTenUpdates = Array(sortedUpdates.prefix(10))
+        let lastTenUpdates = Array(sortedUpdates.prefix(1000))
         lastTenUpdates.forEach { update in
             self.notificationManager.addUpdate(update)
         }
@@ -288,7 +288,7 @@ struct ContentView: View {
                             }
                         }) {
                             HStack {
-                                Label("All Sheets", systemImage: "square.stack.3d.up")
+                                Label("All Storage Locations", systemImage: "square.stack.3d.up")
                                     .font(.system(size: 13))
                                 if showFileCount {
                                     Spacer()
@@ -606,7 +606,7 @@ struct FileListView: View {
                 }
                 .width(min: 100)
                 
-                TableColumn("Description/ Location", value: \.size.orEmpty) { file in
+                TableColumn("Location", value: \.size.orEmpty) { file in
                     Text(file.size ?? "-")
                         .font(.system(size: 13))
                         .foregroundColor(.secondary)
@@ -651,7 +651,7 @@ struct PlaceholderView: View {
             Image(systemName: "doc.text.magnifyingglass")
                 .font(.system(size: 40))
                 .foregroundColor(.secondary)
-            Text("Select a sheet to view files")
+            Text("Select a hard drive from the sidebar to view files")
                 .font(.system(size: 15))
                 .foregroundColor(.secondary)
                 .padding(.top)
@@ -762,7 +762,7 @@ struct SearchResultsView: View {
                             }
                             .width(min: 100)
                             
-                            TableColumn("Description/ Location", value: \.size.orEmpty) { file in
+                            TableColumn("Location", value: \.size.orEmpty) { file in
                                 Text(file.size ?? "-")
                                     .font(.system(size: 13))
                                     .foregroundColor(.secondary)
@@ -795,7 +795,7 @@ struct AllSheetsView: View {
             sheet.files.map { file in
                 FileEntry(
                     name: file.name,
-                    folderName: "\(displayName(for: sheet.sheetName))/\(file.folderName)",
+                    folderName: file.folderName,
                     dateCreated: file.dateCreated,
                     size: file.size
                 )
@@ -830,7 +830,7 @@ struct AllSheetsView: View {
                     .font(.system(size: AppStyle.iconSize))
                     .foregroundStyle(AppStyle.accentColor)
                     .symbolRenderingMode(.hierarchical)
-                Text("All Sheets")
+                Text("All Storage Locations")
                     .font(AppStyle.fontHeading)
                 Text("(\(allFiles.count) files)")
                     .font(.system(size: 13))
@@ -874,7 +874,7 @@ struct AllSheetsView: View {
                 }
                 .width(min: 100)
                 
-                TableColumn("Description/ Location", value: \.size.orEmpty) { file in
+                TableColumn("Location", value: \.size.orEmpty) { file in
                     Text(file.size ?? "-")
                         .font(.system(size: 13))
                         .foregroundColor(.secondary)
@@ -1004,15 +1004,15 @@ struct DocumentationView: View {
                             title: "Using the Search",
                             content: """
                             Finding files is easy:
-                            • Type in the search box to find files across all sheets
+                            • Type in the search box to find files across All Storage Locations
                             • Click on a sheet name to view only that sheet
-                            • Click 'All Sheets' to see everything at once
+                            • Click 'All Storage Locations' to see everything at once
                             • Use the X button to clear your search
                             
                             Table Features:
                             • Click any column header to sort by that column
                             • Click again to reverse sort order
-                            • Columns include: File Name, Date Created, Size, and Description/Location
+                            • Columns include: File Name, Date Created, Size, and Location
                             
                             Sheet Management:
                             • Right-click sheets to rename them
@@ -1118,7 +1118,7 @@ struct DocumentationView: View {
                             3. View real-time storage statistics
                             4. Use reset button to clear settings
                             
-                            Note: The calculator uses the total size of all files across all sheets
+                            Note: The calculator uses the total size of all files across all Storage Locations
                             """
                         )
                         
@@ -1392,7 +1392,7 @@ struct SettingsView: View {
                             
                             Picker("Default View:", selection: $defaultView) {
                                 Text("Last Selected Sheet").tag("last")
-                                Text("All Sheets").tag("all")
+                                Text("All Storage Locations").tag("all")
                                 Text("None").tag("none")
                             }
                             .labelsHidden()
