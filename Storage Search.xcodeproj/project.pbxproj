@@ -43,15 +43,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		4B138DD02CFF9EF5008286D5 /* GoogleSheetSearch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoogleSheetSearch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B138DD02CFF9EF5008286D5 /* Storage Search.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Storage Search.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B138DD32CFF9EF5008286D5 /* GoogleSheetSearchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetSearchApp.swift; sourceTree = "<group>"; };
 		4B138DD52CFF9EF5008286D5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4B138DD72CFF9EF6008286D5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4B138DDA2CFF9EF6008286D5 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		4B138DDC2CFF9EF6008286D5 /* GoogleSheetSearch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GoogleSheetSearch.entitlements; sourceTree = "<group>"; };
-		4B138DE12CFF9EF6008286D5 /* GoogleSheetSearchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GoogleSheetSearchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B138DE12CFF9EF6008286D5 /* Storage SearchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Storage SearchTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B138DE52CFF9EF6008286D5 /* GoogleSheetSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetSearchTests.swift; sourceTree = "<group>"; };
-		4B138DEB2CFF9EF6008286D5 /* GoogleSheetSearchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GoogleSheetSearchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B138DEB2CFF9EF6008286D5 /* Storage SearchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Storage SearchUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B138DEF2CFF9EF6008286D5 /* GoogleSheetSearchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetSearchUITests.swift; sourceTree = "<group>"; };
 		4B138DF12CFF9EF6008286D5 /* GoogleSheetSearchUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetSearchUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		4B138E012CFF9FFC008286D5 /* GoogleSheetsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetsParser.swift; sourceTree = "<group>"; };
@@ -104,9 +104,9 @@
 		4B138DD12CFF9EF5008286D5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4B138DD02CFF9EF5008286D5 /* GoogleSheetSearch.app */,
-				4B138DE12CFF9EF6008286D5 /* GoogleSheetSearchTests.xctest */,
-				4B138DEB2CFF9EF6008286D5 /* GoogleSheetSearchUITests.xctest */,
+				4B138DD02CFF9EF5008286D5 /* Storage Search.app */,
+				4B138DE12CFF9EF6008286D5 /* Storage SearchTests.xctest */,
+				4B138DEB2CFF9EF6008286D5 /* Storage SearchUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -158,9 +158,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4B138DCF2CFF9EF5008286D5 /* GoogleSheetSearch */ = {
+		4B138DCF2CFF9EF5008286D5 /* Storage Search */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4B138DF52CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "GoogleSheetSearch" */;
+			buildConfigurationList = 4B138DF52CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "Storage Search" */;
 			buildPhases = (
 				4B138DCC2CFF9EF5008286D5 /* Sources */,
 				4B138DCD2CFF9EF5008286D5 /* Frameworks */,
@@ -170,19 +170,19 @@
 			);
 			dependencies = (
 			);
-			name = GoogleSheetSearch;
+			name = "Storage Search";
 			packageProductDependencies = (
 				4B138DFF2CFF9FDE008286D5 /* SwiftSoup */,
 				4B6B72AB2D26F9AA00C2A470 /* URLImage */,
 				4B6B72AD2D26F9AA00C2A470 /* URLImageStore */,
 			);
 			productName = GoogleSheetSearch;
-			productReference = 4B138DD02CFF9EF5008286D5 /* GoogleSheetSearch.app */;
+			productReference = 4B138DD02CFF9EF5008286D5 /* Storage Search.app */;
 			productType = "com.apple.product-type.application";
 		};
-		4B138DE02CFF9EF6008286D5 /* GoogleSheetSearchTests */ = {
+		4B138DE02CFF9EF6008286D5 /* Storage SearchTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4B138DF82CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "GoogleSheetSearchTests" */;
+			buildConfigurationList = 4B138DF82CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "Storage SearchTests" */;
 			buildPhases = (
 				4B138DDD2CFF9EF6008286D5 /* Sources */,
 				4B138DDE2CFF9EF6008286D5 /* Frameworks */,
@@ -193,14 +193,14 @@
 			dependencies = (
 				4B138DE32CFF9EF6008286D5 /* PBXTargetDependency */,
 			);
-			name = GoogleSheetSearchTests;
+			name = "Storage SearchTests";
 			productName = GoogleSheetSearchTests;
-			productReference = 4B138DE12CFF9EF6008286D5 /* GoogleSheetSearchTests.xctest */;
+			productReference = 4B138DE12CFF9EF6008286D5 /* Storage SearchTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		4B138DEA2CFF9EF6008286D5 /* GoogleSheetSearchUITests */ = {
+		4B138DEA2CFF9EF6008286D5 /* Storage SearchUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4B138DFB2CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "GoogleSheetSearchUITests" */;
+			buildConfigurationList = 4B138DFB2CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "Storage SearchUITests" */;
 			buildPhases = (
 				4B138DE72CFF9EF6008286D5 /* Sources */,
 				4B138DE82CFF9EF6008286D5 /* Frameworks */,
@@ -211,9 +211,9 @@
 			dependencies = (
 				4B138DED2CFF9EF6008286D5 /* PBXTargetDependency */,
 			);
-			name = GoogleSheetSearchUITests;
+			name = "Storage SearchUITests";
 			productName = GoogleSheetSearchUITests;
-			productReference = 4B138DEB2CFF9EF6008286D5 /* GoogleSheetSearchUITests.xctest */;
+			productReference = 4B138DEB2CFF9EF6008286D5 /* Storage SearchUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -239,7 +239,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 4B138DCB2CFF9EF5008286D5 /* Build configuration list for PBXProject "GoogleSheetSearch" */;
+			buildConfigurationList = 4B138DCB2CFF9EF5008286D5 /* Build configuration list for PBXProject "Storage Search" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -256,9 +256,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4B138DCF2CFF9EF5008286D5 /* GoogleSheetSearch */,
-				4B138DE02CFF9EF6008286D5 /* GoogleSheetSearchTests */,
-				4B138DEA2CFF9EF6008286D5 /* GoogleSheetSearchUITests */,
+				4B138DCF2CFF9EF5008286D5 /* Storage Search */,
+				4B138DE02CFF9EF6008286D5 /* Storage SearchTests */,
+				4B138DEA2CFF9EF6008286D5 /* Storage SearchUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -327,12 +327,12 @@
 /* Begin PBXTargetDependency section */
 		4B138DE32CFF9EF6008286D5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4B138DCF2CFF9EF5008286D5 /* GoogleSheetSearch */;
+			target = 4B138DCF2CFF9EF5008286D5 /* Storage Search */;
 			targetProxy = 4B138DE22CFF9EF6008286D5 /* PBXContainerItemProxy */;
 		};
 		4B138DED2CFF9EF6008286D5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4B138DCF2CFF9EF5008286D5 /* GoogleSheetSearch */;
+			target = 4B138DCF2CFF9EF5008286D5 /* Storage Search */;
 			targetProxy = 4B138DEC2CFF9EF6008286D5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -467,8 +467,12 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GoogleSheetSearch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Storage Search";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "This app needs permission to install itself in the Applications folder.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSystemAdministrationUsageDescription = "Administrator access is needed to install this app in the Applications folder.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -499,8 +503,12 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GoogleSheetSearch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Storage Search";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "This app needs permission to install itself in the Applications folder.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSystemAdministrationUsageDescription = "Administrator access is needed to install this app in the Applications folder.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -530,7 +538,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GoogleSheetSearch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/GoogleSheetSearch";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Storage Search.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Storage Search";
 			};
 			name = Debug;
 		};
@@ -549,7 +557,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GoogleSheetSearch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/GoogleSheetSearch";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Storage Search.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Storage Search";
 			};
 			name = Release;
 		};
@@ -590,7 +598,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4B138DCB2CFF9EF5008286D5 /* Build configuration list for PBXProject "GoogleSheetSearch" */ = {
+		4B138DCB2CFF9EF5008286D5 /* Build configuration list for PBXProject "Storage Search" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4B138DF32CFF9EF6008286D5 /* Debug */,
@@ -599,7 +607,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4B138DF52CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "GoogleSheetSearch" */ = {
+		4B138DF52CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "Storage Search" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4B138DF62CFF9EF6008286D5 /* Debug */,
@@ -608,7 +616,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4B138DF82CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "GoogleSheetSearchTests" */ = {
+		4B138DF82CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "Storage SearchTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4B138DF92CFF9EF6008286D5 /* Debug */,
@@ -617,7 +625,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4B138DFB2CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "GoogleSheetSearchUITests" */ = {
+		4B138DFB2CFF9EF6008286D5 /* Build configuration list for PBXNativeTarget "Storage SearchUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4B138DFC2CFF9EF6008286D5 /* Debug */,

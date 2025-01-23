@@ -281,9 +281,8 @@ struct LoginView: View {
             showNotification = true
             return
         }
-
         // Check if the username and password match any entry
-        if let user = users.first(where: { $0.username == username && $0.password == password }) {
+        if users.first(where: { $0.username == username && $0.password == password }) != nil {
             // Successful login
             isLoggedIn = true
             errorMessage = nil

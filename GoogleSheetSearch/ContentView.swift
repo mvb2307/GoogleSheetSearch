@@ -40,6 +40,7 @@ struct ContentView: View {
     @State private var updateCounter = 0
     @State private var showingDocumentation = false
     @State private var showingSettings = false
+    @State private var showingWebView = true // New state to control WebView presentation
     @AppStorage("showFileCount") private var showFileCount = true
     @AppStorage("customSheetNames") private var customSheetNames: [String: String] = [:]
     @AppStorage("sheetOrder") private var sheetOrder: [String] = []
@@ -288,7 +289,7 @@ struct ContentView: View {
                             }
                         }) {
                             HStack {
-                                Label("All Storage Locations", systemImage: "square.stack.3d.up")
+                                Label("All Storage Locations", systemImage: "internaldrive.fill")
                                     .font(.system(size: 13))
                                 if showFileCount {
                                     Spacer()
@@ -304,7 +305,7 @@ struct ContentView: View {
                             NavigationLink(value: sheet.sheetName) {
                                 HStack {
                                     Label(displayName(for: sheet.sheetName),
-                                          systemImage: "doc.text")
+                                          systemImage: "internaldrive")
                                         .font(.system(size: 13))
                                     if showFileCount {
                                         Spacer()
@@ -412,9 +413,23 @@ struct ContentView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 HStack(spacing: 16) {
+                    // New Button to Open WebView with Icon
+                    Button(action: {
+                        showingWebView = true  // Set the state to true when the button is pressed
+                    }) {
+                        Image(systemName: "square.and.pencil")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                            .symbolRenderingMode(.hierarchical)
+                    }
+                    .help("Open Google Sheet")
+                    .frame(width: 20)
+
+                    // Notification Button
                     NotificationButton(manager: notificationManager)
                         .frame(width: 20)
-                    
+
+                    // Settings Button
                     Button(action: {
                         showingSettings = true
                     }) {
@@ -425,10 +440,11 @@ struct ContentView: View {
                     }
                     .help("Settings")
                     .frame(width: 20)
-                    
+
                     Divider()
                         .frame(height: 16)
-                    
+
+                    // Logout Button
                     Button(action: {
                         withAnimation(.spring(response: 0.3)) {
                             isAuthenticated = false
@@ -436,7 +452,7 @@ struct ContentView: View {
                     }) {
                         Image(systemName: "xmark.square")
                             .font(.system(size: 20))
-                            .foregroundStyle(AppStyle.accentColor)  // Changed from .red to AppStyle.accentColor
+                            .foregroundStyle(AppStyle.accentColor)
                             .symbolRenderingMode(.hierarchical)
                     }
                     .help("Logout")
@@ -555,13 +571,13 @@ struct FileListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Image(systemName: "folder.fill")
+                Image(systemName: "internaldrive")
                     .font(.system(size: AppStyle.iconSize))
                     .foregroundStyle(AppStyle.accentColor)
                     .symbolRenderingMode(.hierarchical)
                 Text(displayName)
                     .font(AppStyle.fontHeading)
-                Text("(\(files.count) files")
+                Text("(\(files.count) files)")
                     .font(.system(size: 13))
                     .foregroundStyle(.secondary)
                 Text("•")
@@ -613,18 +629,20 @@ struct FileListView: View {
                         .lineLimit(1)
                 }
                 .width(min: 200)
+                
+                TableColumn("Description", value: \.fileDescription.orEmpty) { file in
+                    Text(file.fileDescription.orEmpty)
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+                .width(min: 200)
             }
             .background(Color(.controlBackgroundColor))
             .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
         }
         .padding()
         .background(Color(.windowBackgroundColor))
-    }
-}
-
-extension Optional where Wrapped == String {
-    var orEmpty: String {
-        self ?? ""
     }
 }
 
@@ -648,7 +666,7 @@ struct PlaceholderView: View {
     var body: some View {
         VStack {
             Spacer()
-            Image(systemName: "doc.text.magnifyingglass")
+            Image(systemName: "internaldrive")
                 .font(.system(size: 40))
                 .foregroundColor(.secondary)
             Text("Select a hard drive from the sidebar to view files")
@@ -719,7 +737,7 @@ struct SearchResultsView: View {
                     .symbolRenderingMode(.hierarchical)
                 Text("Search Results")
                     .font(AppStyle.fontHeading)
-                Text("(\(sortedFiles.count) files")
+                Text("(\(sortedFiles.count) files)")
                     .font(.system(size: 13))
                     .foregroundStyle(.secondary)
                 Text("•")
@@ -733,50 +751,58 @@ struct SearchResultsView: View {
             .padding()
             
             Table(sortedFiles, selection: .constant(nil), sortOrder: $sortOrder) {
-                            TableColumn("File Name", value: \.folderName) { file in
-                                Text(file.folderName)
-                                    .font(.system(size: 13))
-                            }
-                            .width(min: 250)
-                            
-                            TableColumn("Date Created", value: \.name) { file in
-                                Text(file.name)
-                                    .font(.system(size: 13))
-                            }
-                            .width(min: 100)
-                            
-                            TableColumn("Size", value: \.dateCreated.orEmpty) { file in
-                                if let sizeStr = file.dateCreated?.replacingOccurrences(of: " GB", with: ""),
-                                   let size = Double(sizeStr) {
-                                    let formatted = parser.formatSize(size)
-                                    Text("\(String(format: "%.2f", formatted.0)) \(formatted.1)")
-                                        .font(.system(size: 13))
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
-                                } else {
-                                    Text("-")
-                                        .font(.system(size: 13))
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
-                                }
-                            }
-                            .width(min: 100)
-                            
-                            TableColumn("Location", value: \.size.orEmpty) { file in
-                                Text(file.size ?? "-")
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(1)
-                            }
-                            .width(min: 200)
-                        }
-                        .background(Color(.controlBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
-                    }
-                    .padding()
-                    .background(Color(.windowBackgroundColor))
+                TableColumn("File Name", value: \.folderName) { file in
+                    Text(file.folderName)
+                        .font(.system(size: 13))
                 }
+                .width(min: 250)
+                
+                TableColumn("Date Created", value: \.name) { file in
+                    Text(file.name)
+                        .font(.system(size: 13))
+                }
+                .width(min: 100)
+                
+                TableColumn("Size", value: \.dateCreated.orEmpty) { file in
+                    if let sizeStr = file.dateCreated?.replacingOccurrences(of: " GB", with: ""),
+                       let size = Double(sizeStr) {
+                        let formatted = parser.formatSize(size)
+                        Text("\(String(format: "%.2f", formatted.0)) \(formatted.1)")
+                            .font(.system(size: 13))
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    } else {
+                        Text("-")
+                            .font(.system(size: 13))
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                .width(min: 100)
+                
+                TableColumn("Location", value: \.size.orEmpty) { file in
+                    Text(file.size ?? "-")
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+                .width(min: 200)
+                
+                TableColumn("Description", value: \.fileDescription.orEmpty) { file in
+                    Text(file.fileDescription.orEmpty)
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+                .width(min: 200)
             }
+            .background(Color(.controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
+        }
+        .padding()
+        .background(Color(.windowBackgroundColor))
+    }
+}
 
 // New AllSheetsView
 struct AllSheetsView: View {
@@ -797,7 +823,8 @@ struct AllSheetsView: View {
                     name: file.name,
                     folderName: file.folderName,
                     dateCreated: file.dateCreated,
-                    size: file.size
+                    size: file.size,
+                    fileDescription: file.fileDescription // Ensure this property exists in FileEntry
                 )
             }
         }
@@ -826,7 +853,7 @@ struct AllSheetsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Image(systemName: "square.stack.3d.up.fill")
+                Image(systemName: "internaldrive.fill")
                     .font(.system(size: AppStyle.iconSize))
                     .foregroundStyle(AppStyle.accentColor)
                     .symbolRenderingMode(.hierarchical)
@@ -881,6 +908,14 @@ struct AllSheetsView: View {
                         .lineLimit(1)
                 }
                 .width(min: 200)
+                
+                TableColumn("Description", value: \.fileDescription.orEmpty) { file in
+                    Text(file.fileDescription.orEmpty)
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+                .width(min: 200)
             }
             .background(Color(.controlBackgroundColor))
             .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
@@ -922,7 +957,7 @@ struct StatusBarView: View {
             Spacer()
             
             // Update the total size display
-            Text("Total Storage: \(String(format: "%.2f", totalGB.0)) \(totalGB.1)")
+            Text("Total Storage All Drives: \(String(format: "%.2f", totalGB.0)) \(totalGB.1)")
                 .foregroundStyle(.secondary)
                 .font(.system(size: 12))
             
