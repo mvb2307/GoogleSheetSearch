@@ -56,14 +56,13 @@ extension FileEntry: Comparable {
     }
 }
 
-extension FileEntry: Identifiable {}
-
-// Extension to handle optional strings gracefully
 extension Optional where Wrapped == String {
     var orEmpty: String {
         self ?? ""
     }
 }
+
+extension FileEntry: Identifiable {}
 
 // Define the main parser class
 @MainActor
