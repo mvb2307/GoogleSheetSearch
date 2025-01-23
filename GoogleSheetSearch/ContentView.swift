@@ -234,6 +234,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationSplitView {
+            // Updated section in ContentView
             VStack(spacing: 0) {
                 // URL Input and Refresh Section
                 VStack(spacing: 8) {
@@ -293,7 +294,14 @@ struct ContentView: View {
                                     .font(.system(size: 13))
                                 if showFileCount {
                                     Spacer()
-                                    Text("\(parser.sheets.reduce(0) { $0 + $1.files.count })")
+                                    let totalFiles = parser.sheets.reduce(0) { $0 + $1.files.count }
+                                    let totalSize = parser.sheets.flatMap { $0.files }.reduce((0.0, "GB")) { (current, file) in
+                                        let sizeStr = file.dateCreated?.replacingOccurrences(of: " GB", with: "") ?? "0"
+                                        let size = Double(sizeStr) ?? 0
+                                        return (current.0 + size, current.1)
+                                    }
+                                    let formattedSize = totalSize.0 >= 1000 ? (totalSize.0 / 1000, "TB") : totalSize
+                                    Text("(\(totalFiles) files • \(String(format: "%.2f", formattedSize.0)) \(formattedSize.1))")
                                         .foregroundStyle(.secondary)
                                         .font(.system(size: 12))
                                 }
@@ -577,13 +585,7 @@ struct FileListView: View {
                     .symbolRenderingMode(.hierarchical)
                 Text(displayName)
                     .font(AppStyle.fontHeading)
-                Text("(\(files.count) files)")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                Text("•")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                Text("\(String(format: "%.2f", totalSize.0)) \(totalSize.1))")
+                Text("(\(files.count) files • \(String(format: "%.2f", totalSize.0)) \(totalSize.1))")
                     .font(.system(size: 13))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -636,7 +638,7 @@ struct FileListView: View {
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
-                .width(min: 200)
+                .width(min: 800)
             }
             .background(Color(.controlBackgroundColor))
             .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
@@ -794,7 +796,7 @@ struct SearchResultsView: View {
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
-                .width(min: 200)
+                .width(min: 800)
             }
             .background(Color(.controlBackgroundColor))
             .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
@@ -859,7 +861,7 @@ struct AllSheetsView: View {
                     .symbolRenderingMode(.hierarchical)
                 Text("All Storage Locations")
                     .font(AppStyle.fontHeading)
-                Text("(\(allFiles.count) files)")
+                Text("(\(allFiles.count) files • \(String(format: "%.2f", totalSize.0)) \(totalSize.1))")
                     .font(.system(size: 13))
                     .foregroundColor(.secondary)
                 Spacer()
@@ -915,7 +917,7 @@ struct AllSheetsView: View {
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
-                .width(min: 200)
+                .width(min: 800)
             }
             .background(Color(.controlBackgroundColor))
             .clipShape(RoundedRectangle(cornerRadius: AppStyle.cornerRadius))
