@@ -7,6 +7,7 @@
 import Foundation
 import SwiftUI
 import SwiftSoup
+import Compression // Import the Compression framework
 
 // Define the data structure for a sheet
 struct SheetData: Identifiable {
@@ -404,4 +405,46 @@ class GoogleSheetsParser: ObservableObject {
 
 extension Notification.Name {
     static let sheetsDidUpdate = Notification.Name("sheetsDidUpdate")
+}
+
+// Handling TLS ticket size issue
+
+// Function to compress TLS tickets using zlib
+func compressTicket(_ ticket: Data) -> Data? {
+    let buffer = [UInt8](ticket)
+    let compressedBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: buffer.count)
+    defer { compressedBuffer.deallocate() }
+    
+    let compressedSize = compression_encode_buffer(compressedBuffer, buffer.count, buffer, buffer.count, nil, COMPRESSION_ZLIB)
+    
+    guard compressedSize != 0 else {
+        print("Compression failed")
+        return nil
+    }
+    
+    return Data(bytes: compressedBuffer, count: compressedSize)
+}
+
+// Function to handle TLS ticket size
+func handleTlsTicketSize(ticket: Data) -> Data? {
+    let maxTicketSize = 6144 // Define the maximum allowed size in bytes
+    
+    if ticket.count > maxTicketSize {
+        print("Warning: TLS ticket size \(ticket.count) exceeds the limit \(maxTicketSize)")
+        return compressTicket(ticket)
+    }
+    
+    return ticket
+}
+
+// Example usage in a QUIC session
+func exampleQuicSession() {
+    let sessionTicketData = Data() // Assume this is your TLS session ticket data
+    
+    if let optimizedTicket = handleTlsTicketSize(ticket: sessionTicketData) {
+        // Use the optimized ticket in your QUIC session
+        print("Optimized TLS ticket size: \(optimizedTicket.count)")
+    } else {
+        print("Failed to handle TLS ticket size")
+    }
 }

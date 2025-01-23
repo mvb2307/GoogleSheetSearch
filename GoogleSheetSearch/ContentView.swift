@@ -223,7 +223,7 @@ struct ContentView: View {
         notificationManager.dismissAllUpdates()
         
         // Take the first 10 items (newest changes)
-        let lastTenUpdates = Array(sortedUpdates.prefix(1000))
+        let lastTenUpdates = Array(sortedUpdates.prefix(50))
         lastTenUpdates.forEach { update in
             self.notificationManager.addUpdate(update)
         }
@@ -300,8 +300,7 @@ struct ContentView: View {
                                         let size = Double(sizeStr) ?? 0
                                         return (current.0 + size, current.1)
                                     }
-                                    let formattedSize = totalSize.0 >= 1000 ? (totalSize.0 / 1000, "TB") : totalSize
-                                    Text("(\(totalFiles) files • \(String(format: "%.2f", formattedSize.0)) \(formattedSize.1))")
+                                    Text("\(totalFiles)")
                                         .foregroundStyle(.secondary)
                                         .font(.system(size: 12))
                                 }
